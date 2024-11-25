@@ -1,0 +1,255 @@
+function Population = Final(Problem,Arch,N,W,gen,Z,eta)
+
+%------------------------------- Copyright --------------------------------
+% Copyright (c) 2024 BIMK Group. You are free to use the PlatEMO for
+% research purposes. All publications which use this platform or any code
+% in the platform should acknowledge the use of "PlatEMO" and reference "Ye
+% Tian, Ran Cheng, Xingyi Zhang, and Yaochu Jin, PlatEMO: A MATLAB platform
+% for evolutionary multi-objective optimization [educational forum], IEEE
+% Computational Intelligence Magazine, 2017, 12(4): 73-87".
+%--------------------------------------------------------------------------
+
+% if length(Arch) <= N
+%     Population = Problem.Evaluation(Arch.decs);
+% else
+        visitArch  = [];  %鲁棒解且不重复解
+        remainArch = [];  %鲁棒解且未被选上的解
+        resArch    = [];  %鲁棒且与向量关联的解
+        index = gen;
+        flagW = zeros(1,N);
+        flagV1 = flagW;  %第一类权重向量
+
+
+        % testIndex = 100;
+
+        tolerance = 1e-4; % 定义一个很小的容差
+
+        while  length(find(flagW == 0)) > 0 && index >= 1*(gen/2)
+        % while  length(find(flagW == 0)) > 0 && index >= 1
+
+            
+            % 去掉非鲁棒解
+            [archR, archNR]= Remain(Problem,Arch{index,:},eta);
+            % len = size(archR,2);
+            noRepeatAr = [];
+            % 去掉重复解
+            if isempty(visitArch)
+                visitArch = archR;
+                noRepeatAr = archR;
+                disp(["isempty"]);
+            else
+                % Tdec   = archR.decs;
+                % AllDec = visitArch.decs;
+                % Tdec   = archR.objs;
+                % AllDec = visitArch.objs;
+                % m      = size(Tdec,1);  %大概有100行
+                % n      = size(AllDec,1);
+
+                m      = size(archR,2);  %archR只有一行？
+                n      = size(visitArch,2);
+                repeat = ones(m,1);
+                % disp(size(Tdec));
+                for i = 1 : m   
+                    for j = 1 : n
+                        % if all( abs(Tdec(i,:) - AllDec(j,:)) < tolerance )
+                        % if all( abs(Tdec(i,:) - AllDec(j,:)) < tolerance )
+                        % if all( abs(archR(i).objs - visitArch(j).objs) < tolerance )
+                        if all( abs(archR(i).decs - visitArch(j).decs) < tolerance ) 
+                            % || all( abs(archR(i).objs - visitArch(j).objs) < tolerance )
+                            repeat(i,1) = 0;
+                            break;
+                        end
+                    end
+                end
+                % noRepeatAr = archR(find(repeat==1));
+                noRepeatAr = archR(repeat==1);
+                visitArch = [visitArch,noRepeatAr];
+
+                % len = size(visitArch,2);
+                % disp(num2str(len));
+
+                % tempAr = archR(a==1);
+                % if ~isempty(noRepeatAr)
+                %     % len = size(noRepeatAr,2);
+                %     % disp(num2str(len));
+                %     visitArch = [visitArch,noRepeatAr];
+                % end
+            end
+
+            % len = size(visitArch,2);
+            % disp(num2str(len));
+
+
+            [resAr,remainAr,flagW] = Assign(resArch,noRepeatAr,W,flagW,Z);
+            resArch = resAr;
+            remainArch = [remainArch, remainAr];
+
+            % if ~isempty(noRepeatAr)
+            %     [resAr,remainAr,flagW] = Assign(resArch,noRepeatAr,W,flagW,Z);
+            %     resArch = resAr;
+            %     remainArch = [remainArch, remainAr];
+            % end
+            %记录第一类参考向量
+            if index == gen
+                flagV1 = flagW;
+            end
+
+            index = index - 1;
+            disp(["index: ",num2str(index)]);
+            
+        end
+
+        % disp(remainArch.objs);
+        % disp(["remainArch.objs+++++++++++++"]);
+
+        %记录第二类和第三类向量的索引
+        flagFinal = zeros(1,N);
+
+        %分离resAr中关联第一类参考向量的解
+        resAr1 = [];  %第一类参考向量关联的解
+        resAr2 = [];  %第二类参考向量关联的解
+        [~,n] = size(resArch);
+        for i = 1 : n
+            h = resArch(i).vno;
+            if flagV1(h) == 1
+                resAr1 = [resAr1,resArch(i)];
+                flagFinal(h) = 1;
+            else
+                resAr2 = [resAr2,resArch(i)];
+            end
+        end
+
+        disp(["resAr1: ",num2str(size(resAr1,2))]);
+        disp(["resAr2: ",num2str(size(resAr2,2))]);
+
+        %为没有鲁棒解关联权重向量寻找鲁棒解
+       
+        ArT = [];
+        
+        if ~isempty(remainArch)
+            objs   = remainArch.objs;
+            wr     = find(flagW == 0);
+            [~,k]  = size(wr);
+            [~,n]  = size(remainArch);
+            vi     = zeros(1,n);
+            
+            for i = 1 : k
+                y = wr(i);
+                gTemp = Inf;
+                viPopIndex = 1;
+                isSelect = 0;
+                for x = 1 : n
+                    if vi(x) == 0  % 该解没有被选择
+                        obj = objs(x,:);
+                        g = max(abs(obj - Z).*W(y,:),[],2);
+                        if isSelect == 0
+                            gTemp = g;
+                            viPopIndex = x;
+                            isSelect = 1;
+                        else
+                            if abs( remainArch(viPopIndex).vno - y ) > abs( remainArch(x).vno - y )
+                                % 优先选择邻居权重向量上关联的解
+                                gTemp = g;
+                                viPopIndex = x;
+                            elseif abs( remainArch(viPopIndex).vno - y ) == abs( remainArch(x).vno - y )
+                                if gTemp > g
+                                    gTemp = g;
+                                    viPopIndex = x;
+                                end
+                            end
+                        end
+                    end
+                end
+                vi(viPopIndex) = 1;  
+                remainArch(viPopIndex).vno = y;
+                ArT = [ArT, remainArch(viPopIndex)];
+            end
+        end
+
+        
+        % disp(ArT.objs);
+        % disp(["ArT.objs+++++++++++++"]);
+        % disp(ArT.vnos);
+        % disp(["ArT.vnos+++++++++++++"]);
+        % disp(num2str(size(resAr2,2)));
+        % disp(["resAr2.size+++++++++++++"]);
+
+
+        % while length(find(flagW == 0)) > 0
+
+        %     objs   = remainArch.objs;
+        %     wr     = find(flagW == 0);
+        %     [~,n]  = size(remainArch);
+        %     flagT = flagW;
+        %     vi = zeros(1,Problem.N);
+
+        %     for x = 1 : n
+        %         obj = objs(x,:);
+        %         t = 100 * ones(1,Problem.N);  
+        %         [~,k] = size(wr);
+        %         for i = 1 : k
+        %             y = wr(i);
+        %             s = sum(W(y,:).*obj,2);
+        %             m = sqrt(sum(W(y,:).*W(y,:),2)*sum(obj.*obj,2));
+        %             t(1,y) = acos(s/m);
+        %         end
+        %         [~,h]     = min(t(1,:));
+        %         remainArch(x).vno = h;
+
+        %         if flagT(h) == 1
+        %             [~, n1] = size(ArT);
+        %             for kn = 1 : n1
+        %                 if ArT(kn).vno == h
+        %                     if all(ArT(kn).objs >= remainArch(x).objs)
+        %                         ArT(kn) = remainArch(x);
+        %                         vi(h) = x;
+        %                         break;
+        %                     end
+        %                 end
+        %             end
+        %         else
+        %             flagT(h) = 1;
+        %             ArT = [ArT, remainArch(x)];
+        %             vi(h) = x;
+        %         end
+
+        %     end
+            
+        %     vi = vi(vi ~= 0);
+        %     remainArch(vi) = [];
+        %     flagW = flagT;
+
+        % end
+        
+        %第二类权重向量关联解与第三类权重向量关联解合并
+        ArTR = []; 
+        if ~isempty(ArT)
+            for i = 1 : size(ArT,2)
+                ArTR = [ArTR, archive(ArT(i).dec, ArT(i).obj, gen)];
+                ArTR(i).vno = ArT(i).vno;
+            end
+        end
+        if ~isempty(resAr2)
+            for i = 1 : size(resAr2,2)
+                ArTR = [ArTR, archive(resAr2(i).dec, resAr2(i).obj, gen)];
+                ArTR(i+size(ArT,2)).vno = resAr2(i).vno;
+            end
+        end
+
+        % 第二类权重向量与第三类权重向量合并
+        % for i = 1 : N
+        %     if flagV1(i) == 0
+        %         flagFinal(i) = 0;
+        %     end
+        % end
+
+        % disp(["ArTR: ",num2str(size(ArTR,2))]);
+
+
+        offspring = DeGuide(Problem, Arch{gen,:}, ArTR, flagFinal, W, Z, eta);
+        Population = [Problem.Evaluation(resAr1.decs), offspring];
+
+    % end
+end
+
+

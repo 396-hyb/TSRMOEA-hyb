@@ -1,0 +1,166 @@
+function Population = Final(Problem,Arch,N,W,gen,Z)
+
+%------------------------------- Copyright --------------------------------
+% Copyright (c) 2024 BIMK Group. You are free to use the PlatEMO for
+% research purposes. All publications which use this platform or any code
+% in the platform should acknowledge the use of "PlatEMO" and reference "Ye
+% Tian, Ran Cheng, Xingyi Zhang, and Yaochu Jin, PlatEMO: A MATLAB platform
+% for evolutionary multi-objective optimization [educational forum], IEEE
+% Computational Intelligence Magazine, 2017, 12(4): 73-87".
+%--------------------------------------------------------------------------
+
+    if length(Arch) <= N
+        Population = Problem.Evaluation(Arch.decs);
+    else
+        visitArch  = [];
+        remainArch = [];
+        resArch    = [];
+        index = gen;
+
+        flagW = zeros(1,N);
+       
+        while  length(find(flagW == 0)) > 0 && index >= gen/2
+            % 去掉非鲁棒解
+            arch = Remain(Problem,Arch(index,:));
+            index = index - 1;
+
+            len = size(arch,2);
+            % disp(["no-robust: ",num2str(len)]);
+
+            % 去掉重复解
+            if isempty(visitArch)
+                visitArch = arch;
+            else
+                Tdec   = arch.decs;
+                AllDec = visitArch.decs;
+                m      = size(Tdec,1);
+                n      = size(AllDec,1);
+                flag   = ones(m,1);
+                for i = 1 : m   
+                    for j = 1 : n
+                        if all(Tdec(i,:)==AllDec(j,:))
+                            flag(i,1) = 0;
+                            break;
+                        end
+                    end
+                end
+                arch = arch(find(flag==1));
+                visitArch = [visitArch,arch];
+            end
+
+            len = size(arch,2);
+            % disp(["no-alike: ",num2str(len)]);
+
+            [resAr,remainAr,flagW] = Assign(resArch,arch,W,flagW,Z);
+
+            resArch = resAr;
+            remainArch = [remainArch, remainAr];
+
+        end
+
+        % disp(["resArch: ",num2str(size(resArch,2))]);
+
+        flagFinal = flagW;
+        ArT = [];
+        while length(find(flagW == 0)) > 0
+
+            objs   = remainArch.objs;
+            wr = find(flagW == 0);
+            % disp(wr);
+            [~,n]  = size(remainArch);
+
+            flagT = flagW;
+          
+            vi = zeros(1,Problem.N);
+
+            for x = 1 : n
+                obj = objs(x,:);
+                t = Inf(1,Problem.N);
+                
+                [~,k] = size(wr);
+                for i = 1 : k
+                    y = wr(i);
+                    s = sum(W(y,:).*obj,2);
+                    m = sqrt(sum(W(y,:).*W(y,:),2)*sum(obj.*obj,2));
+                    t(1,y) = acos(s/m);
+                    % 将该值存入向量 t 在 y 索引处。
+                    % [~,h]     = sort(dang);
+                end
+                [~,h]     = min(t(1,:));
+                remainArch(x).vno = h;
+
+                if flagT(h) == 1
+                    [~, n1] = size(ArT);
+                    for k = 1 : n1
+                        if ArT(k).vno == h
+
+                            % PBI approach
+                            % normW   = sqrt(sum(W(h,:).^2,2));
+                            % normP   = sqrt(sum((ArT(i).objs-Z).^2,2));
+                            % normO   = sqrt(sum((remainArch(x).obj-Z).^2,2));
+                            % CosineP = sum((ArT(i).objs-Z).*W(h,:),2)./normW./normP;
+                            % CosineO = sum((remainArch(x).obj-Z).*W(h,:),2)./normW./normO;
+                            % g_old   = normP.*CosineP + 5*normP.*sqrt(1-CosineP.^2);
+                            % g_new   = normO.*CosineO + 5*normO.*sqrt(1-CosineO.^2);
+        
+                            % if max(abs(resAr(i).objs-Z).*W(h(1),:),[],2) > max(abs(arch(x).objs-Z).*W(h(1),:),[],2)
+                            if all(ArT(k).objs >= remainArch(x).objs)
+                            % if g_old > g_new
+                            % if norm(resAr(i).objs,2) > norm(arch(x).objs,2)
+                                % remainAr = [remainAr, resAr(i)];
+                                ArT(k) = remainArch(x);
+                                vi(h) = x;
+                                break;
+                            end
+                        end
+                    end
+                else
+                    flagT(h) = 1;
+                    ArT = [ArT, remainArch(x)];
+                    vi(h) = x;
+                end
+
+            end
+            
+            vi = vi(vi ~= 0);
+            remainArch(vi) = [];
+            flagW = flagT;
+
+
+            
+        end
+        
+        
+        % [~,k] = size(ArT);
+        % for i = 1 : k
+        %     fprintf(' ArT.w: %d', ArT(i).vno);
+        % end
+        % fprintf('beforedegiude: \n');
+
+        % disp(["----------"])
+        % disp(ArT.vnos);
+
+        ArTR = [];
+        for i = 1 : size(ArT,2)
+            ArTR = [ArTR, archive(ArT(i).dec, ArT(i).obj, gen)];
+            ArTR(i).vno = ArT(i).vno;
+        end
+
+        offspring = DeGuide(Problem, Arch(gen,:), ArTR, flagFinal, W);
+
+        % resArch = [resArch,ArT];
+
+
+        % disp(["resArch: ",num2str(size(resArch,2))]);
+        % disp(["offspring: ",num2str(size(offspring,2))]);
+
+        Population = [Problem.Evaluation(resArch.decs), offspring];
+
+
+        % Population1 = Problem.Evaluation(Arch(gen,:).decs);
+        % Population2 = Problem.Evaluation(ArT.decs);
+
+    end
+end
+
+

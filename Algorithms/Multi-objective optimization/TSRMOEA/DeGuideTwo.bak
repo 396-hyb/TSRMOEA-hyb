@@ -1,0 +1,235 @@
+function offspring = DeGuideTwo(Problem, Arch1, ArchR, flag, W, Z, eta)
+
+%------------------------------- Copyright --------------------------------
+% Copyright (c) 2023 BIMK Group. You are free to use the PlatEMO for
+% research purposes. All publications which use this platform or any code
+% in the platform should acknowledge the use of "PlatEMO" and reference "Ye
+% Tian, Ran Cheng, Xingyi Zhang, and Yaochu Jin, PlatEMO: A MATLAB platform
+% for evolutionary multi-objective optimization [educational forum], IEEE
+% Computational Intelligence Magazine, 2017, 12(4): 73-87".
+%--------------------------------------------------------------------------
+    
+    
+    % 一阶段最后种群去重
+ 
+    Arch1(1) = [];
+    Arch2 = ArchR;
+    ArT = [];
+    flagT = flag;
+
+    % disp(ArchR.objs);
+    % disp(ArchR.vnos);
+    % disp(["+++++++++++++"]);
+    
+
+    %分配原始解到空权重向量，权重向量以最小角度
+
+    while length(find(flagT == 0)) > 0
+        
+        objs   = Arch1.objs;
+        wr = find(flagT == 0);
+        [~,n]  = size(Arch1);
+        vi = zeros(1,Problem.N);
+
+        for x = 1 : n
+            obj = objs(x,:);
+            t = 100 * ones(1,Problem.N);  
+            [~,k] = size(wr);
+
+            for i = 1 : k
+                y = wr(i);
+                s = sum(W(y,:).*obj,2);
+                m = sqrt(sum(W(y,:).*W(y,:),2)*sum(obj.*obj,2));
+                t(1,y) = acos(s/m);
+            end
+            [~,h]        = min(t(1,:));
+            Arch1(x).vno = h;
+  
+       
+            if flagT(h) == 1
+                [~, n1] = size(ArT);
+                for kn = 1 : n1
+                    if ArT(kn).vno == h
+                        y = h;
+                        sB = sum(W(y,:).*ArT(kn).objs,2);
+                        mB = sqrt(sum(W(y,:).*W(y,:),2)*sum(ArT(kn).objs.*ArT(kn).objs,2));
+                        countB = acos(sB/mB);
+                        sC = sum(W(y,:).*Arch1(x).objs,2);
+                        mC = sqrt(sum(W(y,:).*W(y,:),2)*sum(Arch1(x).objs.*Arch1(x).objs,2));
+                        countC = acos(sC/mC);
+                        % 角度更小解来关联向量
+                        if countB > countC
+                            % fprintf('k = %d , x = %d \n',k, x);
+                            % remainArch = [remainArch, ArT(k)];
+                            ArT(kn) = Arch1(x);
+                            vi(h) = x;
+                            break;
+                        end
+                    end
+                end
+            else
+                flagT(h) = 1;
+                ArT = [ArT, Arch1(x)];
+                vi(h) = x;
+            end
+        end
+        
+        vi = vi(vi ~= 0);
+        Arch1(vi) = [];
+
+    end
+
+    % Arch1:一阶段最终代引导 -> ArT
+
+    wr = find(flag == 0);
+    % disp(["wr", num2str(wr)]);
+ 
+    [~, n] = size(ArT);
+    offspring = [];
+
+    offspringA= [];
+ 
+    % disp(["+++++++++++++Arch2"])
+    % disp(Arch2.vnos);
+
+    % disp(["+++++++++++++ArchR"])
+    % disp(ArchR.vnos);
+    % for i = 1 : n
+    %     disp(["+++++++++++++"])
+    %     disp([num2str(ArT(i).vno )]);
+    %     disp([num2str(Arch2(i).vno)]);
+    % end
+    % [~,k] = size(wr);
+    % for t1 = 1 : k
+    %     disp([num2str(wr(t1))]);
+    % end
+
+    % disp(ArT.objs);
+
+    %% 引导进化
+    guidePop = Problem.Evaluation(ArchR.decs);
+    len   = size(guidePop,2);
+    wr = find(flag == 0);
+    WG = W(wr,:);
+    T = ceil(len);
+    B = pdist2(WG,WG);
+    [~,B] = sort(B,2);
+    B = B(:,1:T);
+
+    guideFE = 100;
+    while guideFE > 0
+        guideFE = guideFE - 1;
+        for i = 1 : len
+            P = B(i,randperm(size(B,2)));
+            Offspring = OperatorGAhalf(Problem,guidePop(P(1:2)));
+            Z = min(Z,Offspring.obj);
+            % g_old = max(abs(guidePop(P).objs-repmat(Z,T,1)).*WG(P,:),[],2);
+            % g_new = max(repmat(abs(Offspring.obj-Z),T,1).*WG(P,:),[],2);
+            % Zmax  = max(guidePop.objs,[],1);
+            % g_old = max(abs(guidePop(P).objs-repmat(Z,T,1))./repmat(Zmax-Z,T,1).*WG(P,:),[],2);
+            % g_new = max(repmat(abs(Offspring.obj-Z)./(Zmax-Z),T,1).*WG(P,:),[],2);
+
+            normW   = sqrt(sum(WG(P,:).^2,2));
+            normP   = sqrt(sum((guidePop(P).objs-repmat(Z,T,1)).^2,2));
+            normO   = sqrt(sum((Offspring.obj-Z).^2,2));
+            CosineP = sum((guidePop(P).objs-repmat(Z,T,1)).*WG(P,:),2)./normW./normP;
+            CosineO = sum(repmat(Offspring.obj-Z,T,1).*WG(P,:),2)./normW./normO;
+            g_old   = normP.*CosineP + 5*normP.*sqrt(1-CosineP.^2);
+            g_new   = normO.*CosineO + 5*normO.*sqrt(1-CosineO.^2);
+
+            Rflag = RobustEta(Problem,Offspring);
+            if Rflag <= eta
+                guidePop(P(g_old>=g_new)) = Offspring;
+                % if size(P(g_old>=g_new)) > 0
+                %     disp(["swap"]);
+                % end
+            end
+        end
+    end
+    
+    offspring = guidePop;
+
+ 
+
+    % for i = 1 : n
+    %     for j = 1 : n
+    %         if ArT(i).vno == Arch2(j).vno
+                
+    %             disp(["+++++++++++++"]);
+    %             disp([num2str(ArT(i).vno)]);
+                
+    %             disp(ArT(i).objs);
+    %             disp(Arch2(j).objs);
+
+    %             personA = Problem.Evaluation(ArT(i).decs);
+    %             personB = Problem.Evaluation(Arch2(j).decs);
+    %             index = ArT(i).vno;
+    %             num = 200;
+    %             % disp(["+++++++++++++"]);
+    %             % disp(["index: ",num2str(index)]);
+
+    %             while(num > 0)
+    %                 num = num - 1;
+    %                 % personC = OperatorDE(Problem,personA,personA,personB);
+    %                 personC = OperatorGAhalf(Problem,[personA,personB]);
+    %                 [~,k] = size(wr);
+    %                 count = 100 * ones(1,Problem.N);  
+    %                 for t1 = 1 : k
+    %                     y = wr(t1);
+    %                     s = sum(W(y,:).*personC.obj,2);
+    %                     m = sqrt(sum(W(y,:).*W(y,:),2)*sum(personC.obj.*personC.obj,2));
+    %                     count(1,y) = acos(s/m);
+    %                 end
+    %                 [~,h] = min(count(1,:));
+    %                 % disp([num2str(h)]);
+    %                 if index == h
+    %                     Z  = min(Z,personC.obj);
+    %                     % gB = max(abs(personB.objs - Z).*W(index,:),[],2);
+    %                     % gC = max(abs(personB.objs - Z).*W(index,:),[],2);
+
+    %                     % PBI approach
+    %                     normW   = sqrt(sum(W(h,:).^2,2));
+    %                     normB   = sqrt(sum((personB.objs-Z).^2,2));
+    %                     normC   = sqrt(sum((personC.objs-Z).^2,2));
+    %                     CosineB = sum((personB.objs-Z).*W(h,:),2)./normW./normB;
+    %                     CosineC = sum((personC.objs-Z).*W(h,:),2)./normW./normC;
+    %                     gB   = normB.*CosineB + 5*normB.*sqrt(1-CosineB.^2);
+    %                     gC   = normC.*CosineC + 5*normC.*sqrt(1-CosineC.^2);
+
+    %                     % gB = sum(personB.objs.*W(index,:));
+    %                     % gC = sum(personC.objs.*W(index,:));
+    %                     Rflag = RobustEta(Problem,personC);
+    %                     if Rflag <= eta
+    %                         if gC < gB 
+    %                             personB = personC;
+    %                             disp(["swap"]);
+    %                         elseif gC == gB % 选择角度更小的
+    %                             y = index;
+    %                             dotB = dot(personB.obj, W(y,:));
+    %                             dotC = dot(personC.obj, W(y,:));
+    %                             cosB = dotB / (norm(personB.obj) * norm(W(y,:)));
+    %                             cosC = dotC / (norm(personC.obj) * norm(W(y,:)));
+    %                             radB = acos(cosB);
+    %                             radC = acos(cosC);
+    %                             if(radC < radB)
+    %                                 personB = personC;
+    %                                 disp(["swap"]);
+    %                             end
+    %                         end
+    %                         % disp([num2str(index)]);
+    %                         % disp(["*"])
+    %                     end
+    %                 end
+    %             end
+         
+    %             offspring = [offspring, personB];
+    %             % offspringA = [offspringA, personB];
+    %             break;
+    %         end
+    %     end
+    % end
+
+    % disp(["offspringA: ",num2str(size(offspringA,2))]);
+
+
+end
