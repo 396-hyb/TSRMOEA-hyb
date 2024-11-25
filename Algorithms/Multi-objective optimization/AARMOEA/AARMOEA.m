@@ -1,5 +1,5 @@
-classdef TSRMOEA100 < ALGORITHM
-% <multi> <real/integer/label/binary/permutation> <constrained/none> 
+classdef AARMOEA < ALGORITHM
+% <multi> <real/integer/label/binary/permutation> <constrained/none> <robust>
 % Two stage robust multi-objective evolutionary algorithm
 % eta --- 0.5 --- Parameter
 
@@ -16,11 +16,12 @@ classdef TSRMOEA100 < ALGORITHM
 % Computational Intelligence Magazine, 2017, 12(4): 73-87".
 %--------------------------------------------------------------------------
 
-% Two stage robust multi-objective evolutionary algorithm
+% adaptive archive robust multi-objective evolutionary algorithm
     methods
         function main(Algorithm,Problem)
 
             %% Parameter setting
+            
             eta = Algorithm.ParameterSet(1.5);
 
             %% Generate random population
@@ -36,10 +37,9 @@ classdef TSRMOEA100 < ALGORITHM
             B = B(:,1:T);
             
             Z    = min(Population.objs,[],1);
-            gen  = 0;
-            GEN  = 1;
+            gen  = 1;
             Arch = cell(Problem.maxFE/Problem.N,1);
-            % Arch{gen,1} = archive(Population.decs, Population.objs, gen);
+            Arch{gen,1} = archive(Population.decs, Population.objs, gen);
 
             %% Optimization
             while Algorithm.NotTerminated(Population)
@@ -73,22 +73,15 @@ classdef TSRMOEA100 < ALGORITHM
 
                     Population(P(g_old>=g_new)) = Offspring;
                 end
-                GEN  = GEN + 1;
-                
-                
+                gen  = gen + 1;
+
                 %档案更新
-                if(GEN > 100)
-                    if mod(GEN, 3) == 1
-                        gen  = gen + 1;
-                        Arch{gen,1} = archive(Population.decs, Population.objs, gen);
-                    end 
-                end
+                Arch{gen,1} = archive(Population.decs, Population.objs, gen);
+                % TemArch = archive(Population.decs, Population.objs, gen);
+                % Arch    = [Arch;TemArch];
                 
                 if Problem.FE >= Problem.maxFE
-                    if mod(GEN, 3) ~= 1
-                        gen  = gen + 1;
-                        Arch{gen,1} = archive(Population.decs, Population.objs, gen);
-                    end 
+                    % [resArch,ArT] = Final(Problem,Arch,Problem.N,W,gen,Z);
                     Population = Final(Problem,Arch,Problem.N,W,gen,Z,eta);
                     disp(num2str(Population(1).add));
                 end

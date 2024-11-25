@@ -1,5 +1,5 @@
 classdef NSGAIIDTI3 < ALGORITHM
-% <multi> <real/integer/label/binary/permutation> <constrained/none> <robust>
+% <multi> <real/integer/label/binary/permutation> <constrained/none> 
 % Nondominated sorting genetic algorithm II
 
 %------------------------------- Reference --------------------------------

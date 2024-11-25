@@ -1,5 +1,5 @@
 classdef NSGAIIDTI4 < ALGORITHM
-% <multi> <real/integer/label/binary/permutation> <constrained/none> <robust>
+% <multi> <real/integer/label/binary/permutation> <constrained/none> 
 % NSGA-II of Deb's type I robust version
 
 %------------------------------- Reference --------------------------------

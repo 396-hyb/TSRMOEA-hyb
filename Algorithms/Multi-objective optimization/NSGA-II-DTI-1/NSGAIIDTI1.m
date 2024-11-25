@@ -1,5 +1,3 @@
-
-
 classdef NSGAIIDTI1 < ALGORITHM
 % <multi> <real/integer/label/binary/permutation> 
 % NSGA-II of Deb's type I robust version

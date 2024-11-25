@@ -1,5 +1,5 @@
 classdef TSRMOEA500 < ALGORITHM
-% <multi> <real/integer/label/binary/permutation> <constrained/none> <robust>
+% <multi> <real/integer/label/binary/permutation> <constrained/none> 
 % Two stage robust multi-objective evolutionary algorithm
 % eta --- 0.5 --- Parameter
 
