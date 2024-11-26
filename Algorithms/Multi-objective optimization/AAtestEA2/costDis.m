@@ -11,7 +11,7 @@ function index = costDis(PopObj, level)
 
 % This function is written by He YiBin
 
-% 受PREA启发
+% 受PREA启发，根据解之间的距离比率删除最密集的解
 
     for i = 1 : level
         obj            = PopObj(i,:);
