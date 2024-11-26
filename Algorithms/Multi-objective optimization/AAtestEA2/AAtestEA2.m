@@ -37,10 +37,11 @@ classdef AAtestEA2 < ALGORITHM
 
             % 存档中每个权重向量关联个体最大存档个数
             ArchGEN = 30;
-
-            Arch = cell(ArchGEN, Problem.N);
+            DecsArch = cell(ArchGEN, Problem.N);  %决策变量存档
+            ObjsArch = cell(ArchGEN, Problem.N);  %目标值存档
             for i = 1 : Problem.N
-                Arch{1, i} = Population(i);
+                DecsArch{1, i} = Population(i).dec;
+                ObjsArch{1, i} = Population(i).obj;
             end
             
             tolerance = 1e-5; % 定义一个很小的容差
@@ -88,25 +89,35 @@ classdef AAtestEA2 < ALGORITHM
                     [~,h]     = min(t(1,:));
                     
                     arPopNum = IndexArr(h); % 权重向量上如果一直存解的解的索引
-                    indexOld = mod(arPopNum, ArchGEN);  % 解在存档中的实际索引
-                    indexNew = mod(arPopNum+1, ArchGEN);
+                    % indexOld = mod(arPopNum, ArchGEN);  % 解在存档中的实际索引
+                    % indexNew = mod(arPopNum+1, ArchGEN);
 
-                    popOld = Arch{indexOld+1, h};  % 同一权重向量的上一个存档解
-                    if all( abs(popNew.obj - popOld.obj) <= tolerance ) 
+                    % popOld = Arch{indexOld+1, h};  % 同一权重向量的上一个存档解
+                    ArchVObjs = ObjsArch(:,h);  %h权重向量上的所有存档解的目标值
+                    % for i = 1 : ArchGEN
+                    %     ArchObj = [ArchObj;Arch{i,h}.obj];
+                    % end
+                    isEqual = Unique(obj,ArchVObjs,arPopNum,ArchGEN);
+                    if isEqual == 1
                         continue;
                     else
-                        % 两个解不同
+                        % 与权重向量存入存档的解不同
                         if arPopNum < ArchGEN
-                            Arch{indexNew+1, h} = popNew;
+                            Arch{mod(arPopNum, ArchGEN)+1, h} = popNew;
                             IndexArr(h) = arPopNum + 1;
                         else
-                            popExist = Arch{indexNew+1, h};
-                            ArchV = Arch(:, h); % 某个权重向量上存入存档的解，ArchV也是一个cell数组，大小为30*1
-                            
-                            disp("*******");
-                            % PopObj = ArchV.objs;
-                            disp(PopObj);
-
+                            % popExist = Arch{indexNew+1, h};
+                            % ArchV = Arch(:, h); % 某个权重向量上存入存档的解，ArchV也是一个cell数组，大小为30*1
+                            ArchObj = [];
+                            for i = 1 : ArchGEN
+                                ArchObj = [ArchObj;Arch{i,h}.obj];
+                            end
+                            ArchObj = [ArchObj; obj];
+                            indexNew = costDis(ArchObj, ArchGEN+1);
+                            if indexNew <= ArchGEN
+                                Arch{indexNew, h} = popNew;
+                                IndexArr(h) = arPopNum + 1;
+                            end
                         end
                     end
                     
