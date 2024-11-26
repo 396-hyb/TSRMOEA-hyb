@@ -102,10 +102,7 @@ classdef AAtestEA2 < ALGORITHM
                         else
                             popExist = Arch{indexNew+1, h};
                             ArchV = Arch(:, h); % 某个权重向量上存入存档的解，ArchV也是一个cell数组，大小为30*1
-                            PopObj = [];
-                            for i = 1 : ArchGEN
-                                PopObj = [PopObj;Arch{i,h}.obj];
-                            end
+                            
                             disp("*******");
                             % PopObj = ArchV.objs;
                             disp(PopObj);

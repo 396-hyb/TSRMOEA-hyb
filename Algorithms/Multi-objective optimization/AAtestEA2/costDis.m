@@ -1,4 +1,4 @@
-function flag = costDis(ArchV, ArchGEN)
+function flag = costDis(ArchV, ArchGEN, h)
 
 %------------------------------- Copyright --------------------------------
 % Copyright (c) 2023 BIMK Group. You are free to use the PlatEMO for
@@ -12,13 +12,21 @@ function flag = costDis(ArchV, ArchGEN)
 % This function is written by He YiBin
 
 % 受PREA启发
-
-    PopObj = ArchV.objs;
+    PopObj = [];
     for i = 1 : ArchGEN
-        Fi             = PopObj(i,:);
-        Ir             = PopObj./repmat(Fi,ArchGEN,1) - 1;  
-        InvertIr       = repmat(Fi,ArchGEN,1)./PopObj - 1;
+        PopObj = [PopObj;Arch{i,h}.obj];
+    end
 
+    for i = 1 : ArchGEN
+        obj            = PopObj(i,:);
+        Ir             = PopObj./repmat(obj,ArchGEN,1) - 1;  
+        InvertIr       = repmat(obj,ArchGEN,1)./PopObj - 1;
+        MaxIr          = max(Ir,[],2);
+        MinIr          = max(InvertIr,[],2);
+        DomInds        = find(MaxIr<=0);
+        MaxIr(DomInds) = -MinIr(DomInds);
+        IMatrix(i,:)   = MaxIr';
+        IMatrix(i,i)   = Inf;
     end
 
 
