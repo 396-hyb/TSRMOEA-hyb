@@ -1,6 +1,5 @@
-classdef AAtestEA2 < ALGORITHM
+classdef AAtestEA2A1 < ALGORITHM
 % <multi> <real/integer/label/binary/permutation> <constrained/none> <robust>
-% ArchGEN --- 30 --- Parameter
 % eta --- 0.5 --- Parameter
 
 %------------------------------- Reference --------------------------------
@@ -17,18 +16,17 @@ classdef AAtestEA2 < ALGORITHM
 %--------------------------------------------------------------------------
 
 % 存档大小固定，对应权重向量存满后按 某个指标 替换存档中的一个解，一阶段存满的档案要用PBI值排序后才进入鲁棒解搜寻
-
+% 消融实验1 ： 直接存最后30代的解
     methods
         function main(Algorithm,Problem)
             
             %% Parameter setting
-        
             eta = Algorithm.ParameterSet(0.5);
-            ArchGEN = Algorithm.ParameterSet(30);
-            % eta = 0.5;
+
+            ArchGEN = 30;
       
-            Result=[]; %初始化一个名为 Result 的空数组。
-            ResultName = strcat('Data/Result/Result-1.mat');
+            % Result=[]; %初始化一个名为 Result 的空数组。
+            % ResultName = strcat('Data/Result/Result-1.mat');
 
             %% Generate the weight vectors
             [W,Problem.N] = UniformPoint(Problem.N,Problem.M);
@@ -44,7 +42,7 @@ classdef AAtestEA2 < ALGORITHM
             Z = min(Population.objs,[],1);
 
             % 存档中每个权重向量关联个体最大存档个数
-            ArchGEN = 30;
+
             DecsArch = cell(ArchGEN, Problem.N);  %决策变量存档
             ObjsArch = cell(ArchGEN, Problem.N);  %目标值存档
             for i = 1 : Problem.N
@@ -76,48 +74,50 @@ classdef AAtestEA2 < ALGORITHM
 
                 %分配解
                 N = Problem.N;
-                for i = 1 : N
-                    popNew = Population(i);
-                    obj = popNew.obj;
-                    %找到与这个解角度最近的权重向量
-                    t = [];
-                    for y = 1 : N
-                        s = sum(W(y,:).*obj,2);
-                        m = sqrt(sum(W(y,:).*W(y,:),2)*sum(obj.*obj,2));
-                        t(1,y) = acos(s/m);
-                    end
-                    [~,h]     = min(t(1,:));
-                    
-                    arPopNum   = IndexArr(h); % 权重向量上如果一直存解的解的索引
-                    % ArchVObjs = ObjsArch(:,h);
-                    ArchVObjs = cell2mat(ObjsArch(:,h));  %h权重向量上的所有存档解的目标值
-
-                    % ArchVObjs  = cell2mat(ArchVObjs1);
-
-                    isEqual = Unique(obj,ArchVObjs,arPopNum,ArchGEN); %是否有重复解
-                    if isEqual == 1
-                        continue;
-                    else
-                        % 与权重向量存入存档的解不同
-                        if arPopNum < ArchGEN
-                            % 存档未满
-                            ObjsArch{mod(arPopNum+1, ArchGEN)+1, h} = obj;
-                            DecsArch{mod(arPopNum+1, ArchGEN)+1, h} = popNew.dec;
-                            IndexArr(h) = arPopNum + 1;
+                if Problem.FE >= Problem.maxFE - ArchGEN * N
+                    for i = 1 : N
+                        popNew = Population(i);
+                        obj = popNew.obj;
+                        %找到与这个解角度最近的权重向量
+                        t = [];
+                        for y = 1 : N
+                            s = sum(W(y,:).*obj,2);
+                            m = sqrt(sum(W(y,:).*W(y,:),2)*sum(obj.*obj,2));
+                            t(1,y) = acos(s/m);
+                        end
+                        [~,h]     = min(t(1,:));
+                        
+                        arPopNum   = IndexArr(h); % 权重向量上如果一直存解的解的索引
+                        % ArchVObjs = ObjsArch(:,h);
+                        ArchVObjs = cell2mat(ObjsArch(:,h));  %h权重向量上的所有存档解的目标值
+    
+                        % ArchVObjs  = cell2mat(ArchVObjs1);
+    
+                        isEqual = Unique(obj,ArchVObjs,arPopNum,ArchGEN); %是否有重复解
+                        if isEqual == 1
+                            continue;
                         else
-                            % ArchVObjs = cell2mat(ObjsArch(:,h)); 
-                            ArchVObjs = [ArchVObjs; obj];
-                            index = costDis(ArchVObjs, ArchGEN+1);
-                            % disp(["index: ",num2str(index)]);
-                            if index <= ArchGEN
-                                ObjsArch{index, h} = obj;
-                                DecsArch{index, h} = popNew.dec;
+                            % 与权重向量存入存档的解不同
+                            if arPopNum < ArchGEN
+                                % 存档未满
+                                ObjsArch{mod(arPopNum+1, ArchGEN)+1, h} = obj;
+                                DecsArch{mod(arPopNum+1, ArchGEN)+1, h} = popNew.dec;
                                 IndexArr(h) = arPopNum + 1;
+                            else
+                                % ArchVObjs = cell2mat(ObjsArch(:,h)); 
+                                ArchVObjs = [ArchVObjs; obj];
+                                index = costDis(ArchVObjs, ArchGEN+1);
+                                % disp(["index: ",num2str(index)]);
+                                if index <= ArchGEN
+                                    ObjsArch{index, h} = obj;
+                                    DecsArch{index, h} = popNew.dec;
+                                    IndexArr(h) = arPopNum + 1;
+                                end
                             end
                         end
                     end
                 end
-
+             
                 
                 if Problem.FE >= Problem.maxFE
                     Population = Final(Problem,IndexArr,ObjsArch,DecsArch,ArchGEN,W,Z,eta,Population);
@@ -128,7 +128,7 @@ classdef AAtestEA2 < ALGORITHM
                     % end
                     % save(ResultName,'Result');
                     % MyFigure(ResultName);
-                    % disp(size(Result));
+                    % % disp(size(Result));
                     % disp(IndexArr);
 
                 end

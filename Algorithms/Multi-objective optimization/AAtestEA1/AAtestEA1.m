@@ -74,42 +74,49 @@ classdef AAtestEA1 < ALGORITHM
                 end
 
                 %分配解
-                N = Problem.N;
-                for i = 1 : N
-                    popNew = Population(i);
-                    obj = popNew.obj;
-                    %找到与这个解角度最近的权重向量
-                    t = [];
-                    for y = 1 : N
-                        s = sum(W(y,:).*obj,2);
-                        m = sqrt(sum(W(y,:).*W(y,:),2)*sum(obj.*obj,2));
-                        t(1,y) = acos(s/m);
-                    end
-                    [~,h]     = min(t(1,:));
+                % N = Problem.N;
+                % for i = 1 : N
+                %     popNew = Population(i);
+                %     obj = popNew.obj;
+                %     %找到与这个解角度最近的权重向量
+                %     t = [];
+                %     for y = 1 : N
+                %         s = sum(W(y,:).*obj,2);
+                %         m = sqrt(sum(W(y,:).*W(y,:),2)*sum(obj.*obj,2));
+                %         t(1,y) = acos(s/m);
+                %     end
+                %     [~,h]     = min(t(1,:));
                     
-                    arPopNum = IndexArr(h); % 权重向量上如果一直存解的解的索引
-                    indexOld = mod(arPopNum, ArchGEN);  % 解在存档中的实际索引
-                    indexNew = mod(arPopNum+1, ArchGEN);
+                %     arPopNum = IndexArr(h); % 权重向量上如果一直存解的解的索引
+                %     indexOld = mod(arPopNum, ArchGEN);  % 解在存档中的实际索引
+                %     indexNew = mod(arPopNum+1, ArchGEN);
 
-                    popOld = Arch{indexOld+1, h};  % 同一权重向量的上一个存档解
-                    if all( abs(popNew.obj - popOld.obj) <= tolerance ) 
-                        continue;
-                    else
-                        % 两个解不同
-                        if arPopNum < ArchGEN
-                            Arch{indexNew+1, h} = popNew;
-                            IndexArr(h) = arPopNum + 1;
-                        else
-                            popExist = Arch{indexNew+1, h};
+                %     popOld = Arch{indexOld+1, h};  % 同一权重向量的上一个存档解
+                %     if all( abs(popNew.obj - popOld.obj) <= tolerance ) 
+                %         continue;
+                %     else
+                %         % 两个解不同
+                %         if arPopNum < ArchGEN
+                %             Arch{indexNew+1, h} = popNew;
+                %             IndexArr(h) = arPopNum + 1;
+                %         else
+                %             popExist = Arch{indexNew+1, h};
                             
 
-                        end
-                    end
+                %         end
+                %     end
                     
                 end
 
                 if Problem.FE >= Problem.maxFE
-                    disp(IndexArr);
+                    Reta    = RobustEta(Problem,Population); 
+                    xR      = find(Reta <= eta);     %鲁棒解
+                    PopR    = Population(xR);  % 为一行多列
+                
+                    disp("*********Reta************");
+                    disp(Reta);
+                    disp("*********xR************");
+                    disp(xR);
                 end
 
                 % disp(num2str(Arch{gen,i}.obj)); //可以输出一个个体的目标值
