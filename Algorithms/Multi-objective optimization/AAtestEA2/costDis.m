@@ -24,6 +24,6 @@ function index = costDis(PopObj, level)
         Matrix(i,:)    = MaxCost';
         Matrix(i,i)    = Inf;
     end
-    [~, minValueIndex] = min(min(Matrix,[],2));
+    [~, minValueIndex] = min(min(Matrix,[],2)); %min 函数默认返回第一个遇到的最小值的位置。
     index = minValueIndex;
 end

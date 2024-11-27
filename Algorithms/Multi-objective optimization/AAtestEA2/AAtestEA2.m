@@ -1,6 +1,7 @@
 classdef AAtestEA2 < ALGORITHM
 % <multi> <real/integer/label/binary/permutation> <constrained/none> <robust>
 % ArchGEN --- 20 --- Parameter
+% eta --- 0.5 --- Parameter
 
 %------------------------------- Reference --------------------------------
 % Q. Zhang and H. Li, MOEA/D: A multiobjective evolutionary algorithm based
@@ -20,6 +21,7 @@ classdef AAtestEA2 < ALGORITHM
     methods
         function main(Algorithm,Problem)
             
+            eta = 0.5;
       
             Result=[]; %初始化一个名为 Result 的空数组。
             ResultName = strcat('Data/Result/Result-1.mat');
@@ -83,7 +85,9 @@ classdef AAtestEA2 < ALGORITHM
                     [~,h]     = min(t(1,:));
                     
                     arPopNum   = IndexArr(h); % 权重向量上如果一直存解的解的索引
+                    % ArchVObjs = ObjsArch(:,h);
                     ArchVObjs = cell2mat(ObjsArch(:,h));  %h权重向量上的所有存档解的目标值
+
                     % ArchVObjs  = cell2mat(ArchVObjs1);
 
                     isEqual = Unique(obj,ArchVObjs,arPopNum,ArchGEN); %是否有重复解
@@ -97,6 +101,7 @@ classdef AAtestEA2 < ALGORITHM
                             DecsArch{mod(arPopNum+1, ArchGEN)+1, h} = popNew.dec;
                             IndexArr(h) = arPopNum + 1;
                         else
+                            % ArchVObjs = cell2mat(ObjsArch(:,h)); 
                             ArchVObjs = [ArchVObjs; obj];
                             index = costDis(ArchVObjs, ArchGEN+1);
                             % disp(["index: ",num2str(index)]);
@@ -111,56 +116,17 @@ classdef AAtestEA2 < ALGORITHM
 
                 
                 if Problem.FE >= Problem.maxFE
-                    % 存档中所有解按pbi值排序
-                    for i = 1 : Problem.N
-                        % disp(ObjsArch(:,i));
-                        
-                        level   = IndexArr(i) + 1;
-                        if level > ArchGEN
-                            level = ArchGEN;
-                        end
+                    Population = Final(Problem,IndexArr,ObjsArch,DecsArch,ArchGEN,W,Z,eta,Population);
 
-                        ArchVObjs = cell2mat(ObjsArch(1:level,i));  %单个权重向量上的所有存档解的目标值
-
-                        % P = B(i,randperm(size(B,2)));
-                        normW   = repmat(sqrt(sum(W(i,:).^2,2)), level, 1);
-                 
-                        normP   = sqrt(sum((ArchVObjs-repmat(Z,level,1)).^2,2));
-                        CosineP = sum((ArchVObjs-repmat(Z,level,1)).*repmat(W(i,:),level,1),2)./normW./normP;
-                        g_v   = normP.*CosineP + 5*normP.*sqrt(1-CosineP.^2);
-                         if i == 50
-                            disp("*******g_vPre");
-                            disp(g_v);
-                        end
-
-                        [~, idx] = sort(g_v); % 对键进行排序，获取排序后的索引
-                        if i == 50
-                            disp("*******g_v");
-                            disp(g_v);
-                            disp("*******idx");
-                            disp(idx);
-                            disp("*******ObjsArchPre");
-                            disp(ObjsArch(:,i))
-                        end
-
-                        ObjsArch(1:level,i)  = ObjsArch(idx,i); % 重新排列
-                        if i == 50
-                            disp("*******ObjsArchAfter");
-                            disp(ObjsArch(:,i))
-                        end
-                        DecsArch(1:level,i)  = DecsArch(idx,i); % 重新排列
-                    end
-
-                    for i = 1 : Problem.N
-                        ArchVObjs = cell2mat(ObjsArch(:,i)); 
-                        Result = [Result; ArchVObjs];
-                    end
-                    save(ResultName,'Result');
+                    % for i = 1 : Problem.N
+                    %     ArchVObjs = cell2mat(ObjsArch(:,i)); 
+                    %     Result = [Result; ArchVObjs];
+                    % end
+                    % save(ResultName,'Result');
                     % MyFigure(ResultName);
-
-
                     % disp(size(Result));
-                    disp(IndexArr);
+                    % disp(IndexArr);
+
                 end
 
                 % disp(num2str(Arch{gen,i}.obj)); //可以输出一个个体的目标值

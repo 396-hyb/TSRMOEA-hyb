@@ -1,4 +1,4 @@
-function isEqual = Unique(obj,ArchVObjs,arPopNum,ArchGEN)
+function popG = Spread(population,flag,con)
 
 %------------------------------- Copyright --------------------------------
 % Copyright (c) 2023 BIMK Group. You are free to use the PlatEMO for
@@ -9,19 +9,21 @@ function isEqual = Unique(obj,ArchVObjs,arPopNum,ArchGEN)
 % Computational Intelligence Magazine, 2017, 12(4): 73-87".
 %--------------------------------------------------------------------------
 
-% This function is written by He YiBin 
-    tolerance = 1e-5; % 定义一个很小的容差
-    m = arPopNum + 1;
-    if m > ArchGEN
-        m = ArchGEN;
+% This function is written by He YiBin
+      
+    objs = population.objs;
+    keys = objs(:,1);  % 提取每个元素的第一个目标值
+    [~, idx] = sort(keys);  % 对键进行排序，获取排序后的索引
+    popS  = population(idx);  % 重新排列
+    if con == 1
+        popG  = popS(flag == 1);  
+    else
+        popG = popS;
     end
-    isEqual = 0;
-    
-    %% 可以优化吗？
-    for i = 1 : m   
-        if all(abs(obj - ArchVObjs(i) )) < tolerance 
-            isEqual = 1;
-            break;
-        end
-    end
+    wr    = find(flag == 1);
+    len   = size(popG,2);
+    for i = 1 : len
+        popG(i).vno = wr(i);
+    end 
+
 end
