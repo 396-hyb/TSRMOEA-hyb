@@ -47,9 +47,9 @@ function Population = DeGuideThree(Problem, rRelate, flag, W, Z, eta)
             RE = RobustEta(Problem,Offspring);
             if RE <= eta
                 guidePop(P(g_old>=g_new)) = Offspring;
-                if size(P(g_old>=g_new)) > 0
-                    disp(["swap3"]);
-                end
+                % if size(P(g_old>=g_new)) > 0
+                %     disp(["swap3"]);
+                % end
             end
         end
     end

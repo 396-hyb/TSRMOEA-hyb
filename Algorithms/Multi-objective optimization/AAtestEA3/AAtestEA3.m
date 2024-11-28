@@ -1,7 +1,9 @@
 classdef AAtestEA3 < ALGORITHM
 % <multi> <real/integer/label/binary/permutation> <constrained/none> <robust>
-% ArchGEN --- 30 --- Parameter
 % eta --- 0.5 --- Parameter
+% ArchGEN --- 30 --- Parameter
+% gap    ---    20 --- Parameter calculating the change rate of ideal points
+% lambda --- 1e-3 --- Parameter determining the evolving stages 
 
 %------------------------------- Reference --------------------------------
 % Q. Zhang and H. Li, MOEA/D: A multiobjective evolutionary algorithm based
@@ -16,36 +18,39 @@ classdef AAtestEA3 < ALGORITHM
 % Computational Intelligence Magazine, 2017, 12(4): 73-87".
 %--------------------------------------------------------------------------
 
-% 根据某个指标quota：当小于值q1是，开始存档；当小于值q2一定代数后，开始切换到第二阶段；
+% 根据某个指标quota：当小于值q1是，开始存档；当小于值q2一定代数后，开始切换到第二阶段；(未采用)
 % 存档大小固定，对应权重向量存满后按 某个指标 替换存档中的一个解，一阶段存满的档案要用PBI值排序后才进入鲁棒解搜寻
+% 每个权重向量对应领域有个指标quota：当都小于值q1后，开始切换到第二阶段；存档满了用距离比率切换
 
     methods
         function main(Algorithm,Problem)
             
             %% Parameter setting
-        
-            eta = Algorithm.ParameterSet(0.5);
-            ArchGEN = Algorithm.ParameterSet(30);
-            % eta = 0.5;
-      
-            Result=[]; %初始化一个名为 Result 的空数组。
-            ResultName = strcat('Data/Result/Result-1.mat');
+            [eta, ArchGEN, gap, lambda] = Algorithm.ParameterSet(0.5, 30, 20, 1e-3);
+    
+            Iter        = 1;
+            IdealPoints = {};
+            flag = zeros(1,Problem.N);   % 0 for the first stage, 1 for the second stage
+
+            % Result=[]; %初始化一个名为 Result 的空数组。
+            % ResultName = strcat('Data/Result/Result-1.mat');
 
             %% Generate the weight vectors
             [W,Problem.N] = UniformPoint(Problem.N,Problem.M);
             T = ceil(Problem.N/10);
 
             %% Detect the neighbours of each solution
-            B = pdist2(W,W);
+            B = pdist2(W,W);  % B(i, j) 表示第 i 个和第 j 个权重向量之间的距离。
             [~,B] = sort(B,2);
-            B = B(:,1:T);
-
+            B = B(:,1:T);   % 每个权重向量就只保留与其最近的 T 个邻居的索引
+  
             %% Generate random population
             Population = Problem.Initialization();
+            for i = 1 : Problem.N
+                IdealPoints{Iter, i} = min(Population(B(i,:)).objs, [], 1);
+            end
             Z = min(Population.objs,[],1);
 
-            % 存档中每个权重向量关联个体最大存档个数
-            ArchGEN = 30;
             DecsArch = cell(ArchGEN, Problem.N);  %决策变量存档
             ObjsArch = cell(ArchGEN, Problem.N);  %目标值存档
             for i = 1 : Problem.N
@@ -57,11 +62,20 @@ classdef AAtestEA3 < ALGORITHM
 
             IndexArr = zeros(1,Problem.N);  %注意档案是从1开始，但索引不是从1开始，索引从 0 到 ArchGEN-1
 
+
             %% Optimization
             while Algorithm.NotTerminated(Population)
-                % For each solution
+                % IdealPoints(Iter,:) = Z;
+                % if Iter > gap && flag == 0
+                %     max_change = calc_maxchange(IdealPoints,Iter,gap);
+                %     disp(["**max_change:",num2str(max_change)]);
+                %     if max_change <= lambda
+                %         flag = 1;
+                %     end
+                % end
+                Iter = Iter + 1;
+      
                 for i = 1 : Problem.N
-                    % Choose the parents
                     P = B(i,randperm(size(B,2)));
                     Offspring = OperatorGAhalf(Problem,Population(P(1:2)));
                     Z = min(Z,Offspring.obj);
@@ -74,70 +88,80 @@ classdef AAtestEA3 < ALGORITHM
                     g_new   = normO.*CosineO + 5*normO.*sqrt(1-CosineO.^2);
                     Population(P(g_old>=g_new)) = Offspring;
                 end
-
-                %分配解
-                N = Problem.N;
-                for i = 1 : N
-                    popNew = Population(i);
-                    obj = popNew.obj;
-                    %找到与这个解角度最近的权重向量
-                    t = [];
-                    for y = 1 : N
-                        s = sum(W(y,:).*obj,2);
-                        m = sqrt(sum(W(y,:).*W(y,:),2)*sum(obj.*obj,2));
-                        t(1,y) = acos(s/m);
-                    end
-                    [~,h]     = min(t(1,:));
-                    
-                    arPopNum   = IndexArr(h); % 权重向量上如果一直存解的解的索引
-                    % ArchVObjs = ObjsArch(:,h);
-                    ArchVObjs = cell2mat(ObjsArch(:,h));  %h权重向量上的所有存档解的目标值
-
-                    % ArchVObjs  = cell2mat(ArchVObjs1);
-
-                    isEqual = Unique(obj,ArchVObjs,arPopNum,ArchGEN); %是否有重复解
-                    if isEqual == 1
-                        continue;
-                    else
-                        % 与权重向量存入存档的解不同
-                        if arPopNum < ArchGEN
-                            % 存档未满
-                            ObjsArch{mod(arPopNum+1, ArchGEN)+1, h} = obj;
-                            DecsArch{mod(arPopNum+1, ArchGEN)+1, h} = popNew.dec;
-                            IndexArr(h) = arPopNum + 1;
+                
+                for i = 1 : Problem.N
+                    IdealPoints{Iter, i} = min(Population(B(i,:)).objs, [], 1);
+                    if Iter > gap  %&& flag(i) == 0
+                        max_change = calc_maxchange(cell2mat(IdealPoints(:,i)), Iter, gap);
+                        if max_change <= lambda
+                            flag(i) = 1;
                         else
-                            % ArchVObjs = cell2mat(ObjsArch(:,h)); 
-                            ArchVObjs = [ArchVObjs; obj];
-                            index = costDis(ArchVObjs, ArchGEN+1);
-                            % disp(["index: ",num2str(index)]);
-                            if index <= ArchGEN
-                                ObjsArch{index, h} = obj;
-                                DecsArch{index, h} = popNew.dec;
-                                IndexArr(h) = arPopNum + 1;
-                            end
+                            flag(i) = 0;
                         end
                     end
                 end
 
-                
-                if Problem.FE >= Problem.maxFE
-                    Population = Final(Problem,IndexArr,ObjsArch,DecsArch,ArchGEN,W,Z,eta,Population);
-
-                    % for i = 1 : Problem.N
-                    %     ArchVObjs = cell2mat(ObjsArch(:,i)); 
-                    %     Result = [Result; ArchVObjs];
-                    % end
-                    % save(ResultName,'Result');
-                    % MyFigure(ResultName);
-                    % disp(size(Result));
-                    % disp(IndexArr);
-
+                %分配解
+                N = Problem.N;
+                for i = 1 : N
+                    if flag(i) == 0  % 只要理想点值变化大就存档
+                        popNew = Population(i);
+                        obj = popNew.obj;
+                        %找到与这个解角度最近的权重向量
+                        h = i; % 先直接用i作为权重向量索引
+                        arPopNum   = IndexArr(h); % 权重向量上最后关联解的索引
+                        ArchVObjs = cell2mat(ObjsArch(:,h));  %h权重向量上的所有存档解的目标值
+                        isEqual = Unique(obj,ArchVObjs,arPopNum,ArchGEN); %是否有重复解
+                        if isEqual == 1
+                            continue;
+                        else    % 与权重向量存入存档的解不同
+                            if arPopNum < ArchGEN     % 存档未满
+                                ObjsArch{mod(arPopNum+1, ArchGEN)+1, h} = obj;
+                                DecsArch{mod(arPopNum+1, ArchGEN)+1, h} = popNew.dec;
+                                IndexArr(h) = arPopNum + 1;
+                            else
+                                ArchVObjs = [ArchVObjs; obj];
+                                index = costDis(ArchVObjs, ArchGEN+1);
+                                if index <= ArchGEN   %前面存的解有最小距离比率
+                                    ObjsArch{index, h} = obj;
+                                    DecsArch{index, h} = popNew.dec;
+                                    IndexArr(h) = arPopNum + 1;
+                                end
+                            end
+                        end
+                    end
                 end
-
+                
+                if length(find(flag == 1)) == Problem.N || Problem.FE >= Problem.maxFE  %所有小区域的指标都小于lambda，则开始切换。
+                    disp(["**Problem.FE:",num2str(Problem.FE)]);
+                    Problem.FE = Problem.maxFE;
+                    if Problem.FE >= Problem.maxFE
+                        Population = Final(Problem,IndexArr,ObjsArch,DecsArch,ArchGEN,W,Z,eta,Population);
+                        
+                        % for i = 1 : Problem.N
+                        %     ArchVObjs = cell2mat(ObjsArch(:,i)); 
+                        %     Result = [Result; ArchVObjs];
+                        % end
+                        % save(ResultName,'Result');
+                        % MyFigure(ResultName);
+                        % disp(size(Result));
+                        % disp(IndexArr);
+                        
+                    end
+                    disp(["**Problem.FE:",num2str(Problem.FE)]);
+                    
+                end
+                % disp(["**Problem.FE:",num2str(Problem.FE)]);
                 % disp(num2str(Arch{gen,i}.obj)); //可以输出一个个体的目标值
-
 
             end
         end
     end
+end
+
+function max_change = calc_maxchange(ideal_points,Iter,gap)
+    % Calculate the maximum change rate of ideal points
+    delta = 1e-6 * ones(1,size(ideal_points,2));
+    rz    = abs((ideal_points(Iter,:) - ideal_points(Iter - gap,:)) ./ max(ideal_points(Iter - gap,:),delta));  
+    max_change = max(rz);
 end
