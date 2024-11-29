@@ -62,7 +62,7 @@ classdef AAtestEA4 < ALGORITHM
 
             IndexArr = zeros(1,Problem.N);  %注意档案是从1开始，但索引不是从1开始，索引从 0 到 ArchGEN-1
             
-            Matrix = ones(ArchGEN+1, ArchGEN+1);
+            Matrix = cell(Problem.N);
 
             %% Optimization
             while Algorithm.NotTerminated(Population)
@@ -119,10 +119,15 @@ classdef AAtestEA4 < ALGORITHM
                                 IndexArr(h) = arPopNum + 1;
                             else
                                 ArchVObjs = [ArchVObjs; obj];
-                                index = costDis(ArchVObjs, ArchGEN+1);
+                                if  arPopNum == ArchGEN
+                                    Matrix(h) = DisCreat(ArchVObjs, arPopNum+1);
+                                end
+                                [index, MatrixNew] = costDis(PopObj, level, cell2mat(Matrix(h)));
+                                % index = costDis(ArchVObjs, ArchGEN+1);
                                 if index <= ArchGEN   %前面存的解有最小距离比率
                                     ObjsArch{index, h} = obj;
                                     DecsArch{index, h} = popNew.dec;
+                                    Matrix(h) = MatrixNew;
                                     IndexArr(h) = arPopNum + 1;
                                 end
                             end
