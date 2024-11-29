@@ -21,6 +21,7 @@ classdef AAtestEA3 < ALGORITHM
 % 根据某个指标quota：当小于值q1是，开始存档；当小于值q2一定代数后，开始切换到第二阶段；(未采用)
 % 存档大小固定，对应权重向量存满后按 某个指标 替换存档中的一个解，一阶段存满的档案要用PBI值排序后才进入鲁棒解搜寻
 % 每个权重向量对应领域有个指标quota：当都小于值q1后，开始切换到第二阶段；存档满了用距离比率切换
+% 在第一阶段，根据每个权重向量上指标判断解是否存档
 
     methods
         function main(Algorithm,Problem)
@@ -65,16 +66,6 @@ classdef AAtestEA3 < ALGORITHM
 
             %% Optimization
             while Algorithm.NotTerminated(Population)
-                % IdealPoints(Iter,:) = Z;
-                % if Iter > gap && flag == 0
-                %     max_change = calc_maxchange(IdealPoints,Iter,gap);
-                %     disp(["**max_change:",num2str(max_change)]);
-                %     if max_change <= lambda
-                %         flag = 1;
-                %     end
-                % end
-                Iter = Iter + 1;
-      
                 for i = 1 : Problem.N
                     P = B(i,randperm(size(B,2)));
                     Offspring = OperatorGAhalf(Problem,Population(P(1:2)));
@@ -88,7 +79,8 @@ classdef AAtestEA3 < ALGORITHM
                     g_new   = normO.*CosineO + 5*normO.*sqrt(1-CosineO.^2);
                     Population(P(g_old>=g_new)) = Offspring;
                 end
-                
+                % 计算邻域的理想点变化指标
+                Iter = Iter + 1;
                 for i = 1 : Problem.N
                     IdealPoints{Iter, i} = min(Population(B(i,:)).objs, [], 1);
                     if Iter > gap  %&& flag(i) == 0

@@ -28,7 +28,7 @@ function Population = DeGuideThree(Problem, rRelate, flag, W, Z, eta)
         guideFE = guideFE - 1;
         for i = 1 : len
             P = B(i,randperm(size(B,2)));
-            Offspring = OperatorGAhalf(Problem,guidePop(P(1:2)));
+            Offspring = OperatorGAhalf(Problem,guidePop(P(1:2)), {1,10,1,50});
             Z = min(Z,Offspring.obj);
             % g_old = max(abs(guidePop(P).objs-repmat(Z,T,1)).*WG(P,:),[],2);
             % g_new = max(repmat(abs(Offspring.obj-Z),T,1).*WG(P,:),[],2);
@@ -46,8 +46,8 @@ function Population = DeGuideThree(Problem, rRelate, flag, W, Z, eta)
 
             RE = RobustEta(Problem,Offspring);
             if RE <= eta
-                guidePop(P(g_old>=g_new)) = Offspring;
-                if size(P(g_old>=g_new)) > 0
+                guidePop(P(g_old>g_new)) = Offspring;
+                if size(P(g_old>g_new)) > 0
                     disp(["swap3"]);
                 end
             end

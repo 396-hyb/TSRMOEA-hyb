@@ -159,7 +159,7 @@ function Population = Final(Problem,IndexArr,ObjsArch,DecsArch,ArchGEN,W,Z,eta,P
   
     % 三类鲁棒解数量不够权重向量关联, 用最终代种群非鲁棒解补足
     if length(find(flagV3 == 1)) > 0
-        PopNR   = Population(find(flag > eta)); %非鲁棒解
+        PopNR   = Population(find(Reta > eta)); %非鲁棒解
         PopNRsize = size(PopNR,2); 
         PopNRkeep = ones(1,PopNRsize); %PopNR没有选择的解
 

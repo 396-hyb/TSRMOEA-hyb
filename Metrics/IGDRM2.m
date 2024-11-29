@@ -15,7 +15,7 @@ function score = IGDRM2(Population,Problem)
 % Computational Intelligence Magazine, 2017, 12(4): 73-87".
 %--------------------------------------------------------------------------
 
-    % Population    = Population.best;
+    Population    = Population.best;
     PopObj        = Population.objs;
     N             = length(Population);
     [D, PopIndex] = min(pdist2(Problem.optimum,PopObj),[],2);
@@ -25,7 +25,7 @@ function score = IGDRM2(Population,Problem)
         PopObjV(i,:) = mean(PopX.objs,1);    
         E(i,:)       = abs(PopObjV(i,:) - PopObj(i,:))./(PopObj(i,:));
     end
-    R   = mean(E,2);  
-
+    % R   = mean(E,2);  
+    R = max(E, [], 2);
     score =  mean(D.*R(PopIndex) + D);
 end

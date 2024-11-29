@@ -24,7 +24,7 @@ function Population = DeGuideTwo(Problem, Population, rRelate, flag, W, Z, eta)
     for i = 1 : Vsize
         y = wr(i);
         t = [];
-        for j = 1 : Popsize;
+        for j = 1 : Popsize
             if Popkeep(j) == 1
                 obj = Population(j).obj;
                 s = sum(W(y,:).*obj,2);
@@ -46,13 +46,13 @@ function Population = DeGuideTwo(Problem, Population, rRelate, flag, W, Z, eta)
         while guideFE > 0
             guideFE = guideFE - 1;
 
-            offC = OperatorGAhalf(Problem,[offA,offB]);
+            offC = OperatorGAhalf(Problem,[offA,offB], {1,10,1,50});
             obj = offC.obj;
             normO   = sqrt(sum((obj-Z).^2,2));
             CosineO = sum((obj-Z).*W(y,:),2)./normW./normO;
             g_new   = normO.*CosineO + 5*normO.*sqrt(1-CosineO.^2);
 
-            if g_old>=g_new
+            if g_old>g_new
                 RE = RobustEta(Problem,offC);
                 if RE <= eta 
                     offB = offC;
