@@ -101,17 +101,22 @@ classdef AAtestEA4Lambda5 < ALGORITHM
                         popNew = Population(i);
                         obj = popNew.obj;
                         %找到与这个解角度最近的权重向量
-                        t = [];
-                        for y = 1 : N
-                            s = sum(W(y,:).*obj,2);
-                            m = sqrt(sum(W(y,:).*W(y,:),2)*sum(obj.*obj,2));
-                            t(1,y) = acos(s/m);
-                        end
-                        [~,h]     = min(t(1,:));
-                        arPopNum   = IndexArr(h); % 权重向量上最后关联解的索引
+                        h = i;
+                        arPopNum  = IndexArr(h); % 权重向量上最后关联解的索引
                         ArchVObjs = cell2mat(ObjsArch(:,h));  %h权重向量上的所有存档解的目标值
-                        isEqual = Unique(obj,ArchVObjs,arPopNum,ArchGEN); %是否有重复解
-                        if isEqual == 1
+                        % isEqual = Unique(obj,ArchVObjs,arPopNum,ArchGEN); %是否有重复解
+                        m = arPopNum + 1;
+                        if m > ArchGEN
+                            m = ArchGEN;
+                        end
+                        isEqual = 0;
+                        for i2 = 1 : m   
+                            if all(abs(obj - ArchVObjs(i2) )) < tolerance 
+                                isEqual = 1;
+                                break;
+                            end
+                        end
+                        if isEqual == 1 || flag(h) == 1
                             continue;
                         else    % 与权重向量存入存档的解不同
                             if arPopNum < ArchGEN     % 存档未满

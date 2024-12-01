@@ -1,9 +1,9 @@
-classdef AAtestEA4Lambda4 < ALGORITHM
+classdef AAtestEA4Lambda3 < ALGORITHM
 % <multi> <real/integer/label/binary/permutation> <constrained/none> <robust>
 % eta --- 0.5 --- Parameter
 % ArchGEN --- 30 --- Parameter
 % gap    ---    30 --- Parameter calculating the change rate of ideal points
-% lambda --- 1e-4 --- Parameter determining the evolving stages 
+% lambda --- 1e-3 --- Parameter determining the evolving stages 
 
 %------------------------------- Reference --------------------------------
 % Q. Zhang and H. Li, MOEA/D: A multiobjective evolutionary algorithm based
@@ -22,12 +22,12 @@ classdef AAtestEA4Lambda4 < ALGORITHM
 % 在第一阶段，每代解都要判断是否存档,小于lambda时存档，存档满了用距离比率切换；
 % 每个权重向量对应领域有个指标quota：当都小于值q1后，开始切换到第二阶段；
 
-% lambda值分析: 设为 1e-4
+% lambda值分析: 设为 1e-3
     methods
         function main(Algorithm,Problem)
             
             %% Parameter setting
-            [eta, ArchGEN, gap, lambda] = Algorithm.ParameterSet(0.5, 30, 30, 1e-4);
+            [eta, ArchGEN, gap, lambda] = Algorithm.ParameterSet(0.5, 30, 30, 1e-3);
     
             Iter        = 1;
             IdealPoints = {gap, Problem.N};
