@@ -121,14 +121,14 @@ classdef AAtestEA4Lambda5 < ALGORITHM
                             else
                                 ArchVObjs = [ArchVObjs; obj];
                                 if  arPopNum == ArchGEN
-                                    Matrix(h) = DisCreat(ArchVObjs, arPopNum+1);
+                                    Matrix{h} = DisCreat(ArchVObjs, arPopNum+1);
                                 end
-                                [index, MatrixNew] = costDis(PopObj, level, cell2mat(Matrix(h)));
+                                [index, MatrixNew] = costDis(ArchVObjs, ArchGEN+1, cell2mat(Matrix(h)));
                                 % index = costDis(ArchVObjs, ArchGEN+1);
                                 if index <= ArchGEN   %前面存的解有最小距离比率
                                     ObjsArch{index, h} = obj;
                                     DecsArch{index, h} = popNew.dec;
-                                    Matrix(h) = MatrixNew;
+                                    Matrix{h} = MatrixNew;
                                     IndexArr(h) = arPopNum + 1;
                                 end
                             end

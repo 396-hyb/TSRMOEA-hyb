@@ -57,7 +57,7 @@ function Population = DeGuideTwo(Problem, Population, rRelate, flag, W, Z, eta)
                 if RE <= eta 
                     offB = offC;
                     g_old = g_new;
-                    disp(["swap2"]);
+                    % disp(["swap2"]);
                 end
             end
         end
