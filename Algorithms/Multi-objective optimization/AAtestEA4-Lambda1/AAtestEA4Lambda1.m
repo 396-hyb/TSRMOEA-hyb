@@ -65,6 +65,8 @@ classdef AAtestEA4Lambda1 < ALGORITHM
             
             Matrix = cell(Problem.N);
 
+            
+
             %% Optimization
             while Algorithm.NotTerminated(Population)
                 for i = 1 : Problem.N
@@ -147,7 +149,7 @@ classdef AAtestEA4Lambda1 < ALGORITHM
                         end
                     end
                 end 
-                if length(find(flag == 0)) == 0 || Problem.FE >= Problem.maxFE  %所有小区域的指标都小于lambda，则开始切换。
+                if length(find(flag == 0)) == 0 || (Problem.FE >= Problem.maxFE)  %所有小区域的指标都小于lambda，则开始切换。
                     disp(["**Problem.FE:",num2str(Problem.FE)]);
                
                     Population = Final(Problem,IndexArr,ObjsArch,DecsArch,ArchGEN,W,Z,eta,Population);
