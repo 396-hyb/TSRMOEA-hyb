@@ -38,7 +38,7 @@ classdef TP4G10 < PROBLEM
         %% Calculate objective values
         function PopObj = CalObj(obj,PopDec)
             PopObj(:,1) = (exp(PopDec(:,1))-1)/(exp(1)-1);
-            g = 1 + 10*mean(PopDec(:,2:end),2);
+            g = 1 + 10*mean(PopDec(:,2:end)+0.2,2);
             h = sin(4*pi*PopDec(:,1))/15 - PopDec(:,1) + 1;
             PopObj(:,2) = h.*g;
         end
