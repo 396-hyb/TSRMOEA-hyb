@@ -51,8 +51,7 @@ classdef TP7 < PROBLEM
         %% Calculate the metric value
         function score = CalMetric(obj,metName,Population)
             switch metName
-                case {'Mean_IGD','Mean_HV','Worst_IGD','Worst_HV','IGDRM2','IGDRW2','IGDRM1','IGDRW1','RobustFE'}
-
+                case {'Mean_IGD','Mean_HV','Worst_IGD','Worst_HV','IGDRM2','IGDRW2','IGDRM1','IGDRW1','RobustFE','RobustRatio'}
                     score = feval(metName,Population,obj);
                 otherwise
                     score = feval(metName,Population,obj.optimum);

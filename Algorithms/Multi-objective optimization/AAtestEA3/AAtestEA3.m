@@ -1,5 +1,5 @@
 classdef AAtestEA3 < ALGORITHM
-% <multi> <real/integer/label/binary/permutation> <constrained/none> <robust>
+% <multi> <real/integer/label/binary/permutation> <constrained/none> 
 % eta --- 0.5 --- Parameter
 % ArchGEN --- 30 --- Parameter
 % gap    ---    20 --- Parameter calculating the change rate of ideal points

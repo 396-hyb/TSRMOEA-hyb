@@ -1,5 +1,5 @@
 classdef AAtestEA1 < ALGORITHM
-% <multi> <real/integer/label/binary/permutation> <constrained/none> <robust>
+% <multi> <real/integer/label/binary/permutation> <constrained/none> 
 % ArchGEN --- 30 --- Parameter
 
 %------------------------------- Reference --------------------------------

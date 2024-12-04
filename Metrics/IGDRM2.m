@@ -25,7 +25,7 @@ function score = IGDRM2(Population,Problem)
         PopObjV(i,:) = mean(PopX.objs,1);    
         E(i,:)       = abs(PopObjV(i,:) - PopObj(i,:))./(PopObj(i,:));
     end
-    % R   = mean(E,2);  
-    R = max(E, [], 2);
-    score =  mean(D.*R(PopIndex) + D);
+    R   = mean(E,2);  
+
+    score =  mean(D.*R(PopIndex));
 end
