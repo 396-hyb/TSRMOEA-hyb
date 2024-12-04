@@ -3,8 +3,6 @@ classdef TP5G10 < PROBLEM
 % Test problem for robust multi-objective optimization
 % delta --- 0.03--- Maximum disturbance degree
 % H     ---   50 --- Number of disturbances
-% maxFE --- 1000 -- Maximum number of function evaluations
-
 
 %------------------------------- Reference --------------------------------
 % A. Gaspar-Cunha, J. Ferreira, and G. Recio, Evolutionary robustness
@@ -22,8 +20,6 @@ classdef TP5G10 < PROBLEM
     properties
         delta;      % Maximum disturbance degree
         H;          % Number of disturbances
-        maxFE;      % Maximum number of function evaluations
-
     end
     methods
         %% Default settings of the problem
@@ -39,7 +35,7 @@ classdef TP5G10 < PROBLEM
         function PopObj = CalObj(obj,PopDec)
             PopObj(:,1) = PopDec(:,1);
             % g = 1 + 10*mean(PopDec(:,2:end)-0.2,2) + 0.2;
-            t = mean(PopDec(:,2:end) - 0.2, 2);
+            t = mean(PopDec(:,2:end) - 0.5, 2);
             g = 1 + 10*abs(t);
             h = sin(4*pi*PopDec(:,1))/15 - PopDec(:,1) + 1;
             PopObj(:,2) = h.*g;

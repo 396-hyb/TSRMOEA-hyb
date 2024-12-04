@@ -2,7 +2,6 @@ classdef TP6G10 < PROBLEM
 % <multi> <real> <large/none> <robust>
 % Test problem for robust multi-objective optimization
 % delta --- 0.01 --- Maximum disturbance degree
-% H     ---   50 --- Number of disturbances
 
 %------------------------------- Reference --------------------------------
 % A. Gaspar-Cunha, J. Ferreira, and G. Recio, Evolutionary robustness

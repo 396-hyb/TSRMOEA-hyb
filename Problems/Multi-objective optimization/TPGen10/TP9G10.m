@@ -3,8 +3,6 @@ classdef TP9G10 < PROBLEM
 % Test problem for robust multi-objective optimization
 % delta --- 0.01 --- Maximum disturbance degree
 % H     ---   50 --- Number of disturbances
-% maxFE --- 1000 -- Maximum number of function evaluations
-
 
 %------------------------------- Reference --------------------------------
 % A. Gaspar-Cunha, J. Ferreira, and G. Recio, Evolutionary robustness
@@ -22,8 +20,6 @@ classdef TP9G10 < PROBLEM
     properties
         delta;      % Maximum disturbance degree
         H;          % Number of disturbances
-        maxFE;      % Maximum number of function evaluations
-
     end
     methods
         %% Default settings of the problem
