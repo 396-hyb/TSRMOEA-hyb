@@ -38,7 +38,7 @@ classdef TP3G10 < PROBLEM
         %% Calculate objective values
         function PopObj = CalObj(obj,PopDec)
             PopObj(:,1) = 1 - PopDec(:,1).^2;
-            g = 1 + 10*mean(PopDec(:,2:end)-0.2,2);
+            g = 1 + 10*mean(PopDec(:,2:end)-0.2,2) + 0.2;
             PopObj(:,2) = sin(pi/2*PopDec(:,1)).*g;
         end
         %% Generate points on the Pareto front
