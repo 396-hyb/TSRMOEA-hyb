@@ -158,7 +158,7 @@ classdef AAtestEA4v2 < ALGORITHM
                         flagV3(xR(i)) = 0;
                     end
                     if length(find(flagV3 == 1)) > 0
-                        if ~isempty(rRelateV3)
+                        if ~isempty(PopV3)
                             if length(find(flagV3 == 1)) == 1
                                 populationThree = PopV3;
                             else

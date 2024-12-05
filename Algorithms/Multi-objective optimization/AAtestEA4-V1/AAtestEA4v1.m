@@ -23,7 +23,7 @@ classdef AAtestEA4v1 < ALGORITHM
 % 每个权重向量对应领域有个指标quota：当都小于值q1后，开始切换到第二阶段；存档满了用距离比率切换
 % 在第一阶段，每代解都要判断是否存档
 
-% 消融实验：验证一阶段有效性
+% 消融实验：验证一阶段有效性,直接跑第二阶段（100代）
     methods
         function main(Algorithm,Problem)
             
@@ -49,8 +49,7 @@ classdef AAtestEA4v1 < ALGORITHM
 
             %% Optimization
             while Algorithm.NotTerminated(Population)
-                Population1 = Population;
-                [OffObjV] = MeanEffective(Problem,Population1);
+                % [PopObjV] = MeanEffective(Problem,Population);
                 for i = 1 : Problem.N
                     P = B(i,randperm(size(B,2)));
                     Offspring = OperatorGAhalf(Problem, Population(P(1:2)), {1,20,0.5,10});
