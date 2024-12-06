@@ -1,4 +1,4 @@
-classdef AAtestEA5 < ALGORITHM
+classdef AAtestEA7 < ALGORITHM
 % <multi> <real/integer/label/binary/permutation> <constrained/none> <robust>
 % eta --- 0.5 --- Parameter
 % ArchGEN --- 30 --- Parameter
@@ -22,7 +22,8 @@ classdef AAtestEA5 < ALGORITHM
 % 存档大小固定，对应权重向量存满后按 某个指标 替换存档中的一个解，一阶段存满的档案要用PBI值排序后才进入鲁棒解搜寻
 % 每个权重向量对应领域有个指标quota：当都小于值q1后，开始切换到第二阶段；存档满了用距离比率切换
 % 在第一阶段，每代解都要判断是否存档
-% 第三类用平均目标值选择解,且计算MHV
+
+% 第一类策略：仍然向前进化，最后判断下鲁棒性
     methods
         function main(Algorithm,Problem)
             
@@ -78,7 +79,6 @@ classdef AAtestEA5 < ALGORITHM
                     CosineO = sum(repmat(Offspring.obj-Z,T,1).*W(P,:),2)./normW./normO;
                     g_old   = normP.*CosineP + 5*normP.*sqrt(1-CosineP.^2);
                     g_new   = normO.*CosineO + 5*normO.*sqrt(1-CosineO.^2);
-                    % disp(size(g_old));
                     Population(P(g_old>=g_new)) = Offspring;
                 end
                 % 计算邻域的理想点变化指标
@@ -150,8 +150,8 @@ classdef AAtestEA5 < ALGORITHM
                 end 
                 if length(find(flag == 0)) == 0 || Problem.FE >= Problem.maxFE * 0.9  %所有小区域的指标都小于lambda，则开始切换。
                     disp(["**Problem.FE:",num2str(Problem.FE)]);
-                    remainGen = (Problem.maxFE - Problem.FE) / Problem.N;
-                    Population = Final(Problem,IndexArr,ObjsArch,DecsArch,ArchGEN,W,Z,eta,Population,remainGen);
+               
+                    Population = Final(Problem,IndexArr,ObjsArch,DecsArch,ArchGEN,W,Z,eta,Population);
                         
                         % for i = 1 : Problem.N
                         %     ArchVObjs = cell2mat(ObjsArch(:,i)); 
