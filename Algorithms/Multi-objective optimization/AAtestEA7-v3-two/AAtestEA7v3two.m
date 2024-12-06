@@ -1,6 +1,6 @@
-classdef AAtestEA7v3one < ALGORITHM
+classdef AAtestEA7v3two < ALGORITHM
 % <multi> <real/integer/label/binary/permutation> <constrained/none> <robust>
-% eta --- 0.5 --- Parameter
+% eta --- 1.3 --- Parameter
 % ArchGEN --- 30 --- Parameter
 % gap    ---    30 --- Parameter calculating the change rate of ideal points
 % lambda --- 1e-3 --- Parameter determining the evolving stages 
@@ -28,7 +28,7 @@ classdef AAtestEA7v3one < ALGORITHM
         function main(Algorithm,Problem)
             
             %% Parameter setting
-            [eta, ArchGEN, gap, lambda] = Algorithm.ParameterSet(0.5, 30, 30, 1e-3);
+            [eta, ArchGEN, gap, lambda] = Algorithm.ParameterSet(1.3, 30, 30, 1e-3);
     
             Iter        = 1;
             IdealPoints = {gap, Problem.N};
@@ -148,7 +148,7 @@ classdef AAtestEA7v3one < ALGORITHM
                         end
                     end
                 end 
-                if length(find(flag == 0)) == 0 || Problem.FE >= Problem.maxFE  %所有小区域的指标都小于lambda，则开始切换。
+                if length(find(flag == 0)) == 0 || Problem.FE >= Problem.maxFE * 0.9  %所有小区域的指标都小于lambda，则开始切换。
                     disp(["**Problem.FE:",num2str(Problem.FE)]);
                
                     Population = Final(Problem,IndexArr,ObjsArch,DecsArch,ArchGEN,W,Z,eta,Population);

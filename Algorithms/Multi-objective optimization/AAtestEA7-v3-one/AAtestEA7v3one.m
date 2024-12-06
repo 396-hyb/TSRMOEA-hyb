@@ -1,4 +1,4 @@
-classdef AAtestEA7 < ALGORITHM
+classdef AAtestEA7v3one < ALGORITHM
 % <multi> <real/integer/label/binary/permutation> <constrained/none> <robust>
 % eta --- 1.3 --- Parameter
 % ArchGEN --- 30 --- Parameter
