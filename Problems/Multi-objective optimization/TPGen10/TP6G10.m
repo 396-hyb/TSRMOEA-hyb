@@ -34,7 +34,8 @@ classdef TP6G10 < PROBLEM
         function PopObj = CalObj(~,PopDec) 
             PopObj(:,1) = PopDec(:,1);
             h = 1 - PopDec(:,1).^2;
-            g = sum(10-10*cos(4*pi*(PopDec(:,2:end)))+PopDec(:,2:end).^2,2);
+            t = abs((PopDec(:,2:end)) - 0.5);
+            g = sum(10-10*cos(4*pi*t) + t.^2,2);
             S = 1./(0.2+PopDec(:,1)) + PopDec(:,1).^2;
             PopObj(:,2) = h + g.*S;
         end

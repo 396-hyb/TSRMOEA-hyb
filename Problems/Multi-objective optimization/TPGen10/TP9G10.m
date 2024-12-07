@@ -35,7 +35,9 @@ classdef TP9G10 < PROBLEM
         function PopObj = CalObj(~,PopDec)
             PopObj(:,1) = PopDec(:,1);
             h = 2 - PopObj(:,1) - 0.8*exp(-((PopObj(:,1)+PopDec(:,2)-0.35)/0.25).^2) - exp(-((PopObj(:,1)+PopDec(:,2)-0.85)/0.03).^2);
-            g = 50*sum(PopDec(:,3:end).^2,2);
+            t = abs(PopDec(:,3:end) - 0.5);
+            g = 50*sum(t.^2,2);
+            % g = 50*sum(PopDec(:,3:end).^2,2);
             S = 1 - sqrt(PopObj(:,1));
             PopObj(:,2) = h.*(g+S);
         end

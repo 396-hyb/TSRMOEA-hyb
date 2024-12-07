@@ -208,17 +208,29 @@ function Population = Final(Problem,IndexArr,ObjsArch,DecsArch,ArchGEN,W,Z,eta,P
         % populationOne = Problem.Evaluation(rRelateV1.decs);
     end
 
-    %第二、三类向量混合进化
-    flagV23 = ones(1,N) - flagV1;
-    if length(find(flagV23 == 1)) == 1
-        populationTwoThree = [Problem.Evaluation(rRelateV2.decs), Problem.Evaluation(rRelateV3.decs)];
-    else
-        populationTwoThree = DeGuideThree(Problem, [rRelateV2,rRelateV3], flagV23, W, Z, eta);
+    %第二类向量关联解被引导
+    if ~isempty(rRelateV2)
+        RFE = RFE + size(rRelateV2,2)*100*50;
+        populationTwo = DeGuideTwo(Problem, Population, rRelateV2, flagV2, W, Z, eta);
+    end
+    % error('用于rRelateV2,程序终止');
+
+    %第三类向量关联解被引导
+    flagV3 = ones(1,N) - flagN0R;
+    if length(find(flagV3 == 1)) > 0
+        if ~isempty(rRelateV3)
+            if length(find(flagV3 == 1)) == 1
+                populationThree = Problem.Evaluation(rRelateV3.decs);
+            else
+                RFE = RFE + size(rRelateV3,2)*100*50;
+                populationThree = DeGuideThree(Problem, rRelateV3, flagV3, W, Z, eta);
+                % populationThree = DeGuideThree(Problem,Arch{gen,:}, flagV3, W, Z, eta);
+            end
+        end
     end
 
 
-
-    Population = [populationOne, populationTwoThree];
+    Population = [populationOne, populationTwo, populationThree];
     % Population = [populationOne, Problem.Evaluation(rRelateV2.decs), Problem.Evaluation(rRelateV3.decs)];
     Population(1).add = RFE;
     

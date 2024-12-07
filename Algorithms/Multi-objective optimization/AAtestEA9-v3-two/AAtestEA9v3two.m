@@ -1,4 +1,4 @@
-classdef AAtestEA8v2 < ALGORITHM
+classdef AAtestEA9v3two < ALGORITHM
 % <multi> <real/integer/label/binary/permutation> <constrained/none> <robust>
 % eta --- 1.3 --- Parameter
 % ArchGEN --- 30 --- Parameter
@@ -24,10 +24,9 @@ classdef AAtestEA8v2 < ALGORITHM
 % 在第一阶段，每代解都要判断是否存档
 
 % 第一类策略：仍然向前进化，最后判断下鲁棒性
-% 第二类策略：考虑鲁棒性向前进化
+% 第二类策略：每个向量单独生成子代，然后更新的时候一起更新
 
-% EA8主要用来分析第三类策略用什么
-% EA8v1: 第三类与第二类混合进化
+%EA9消融：第二类解以种群方式进化
 
     methods
         function main(Algorithm,Problem)
@@ -106,7 +105,7 @@ classdef AAtestEA8v2 < ALGORITHM
                     for i = 1 : N
                         popNew = Population(i);
                         obj = popNew.obj;
-                        %找到与这个解角度最近的权重向量
+                        % 找到与这个解角度最近的权重向量
                         % t = [];
                         % for y = 1 : N
                         %     s = sum(W(y,:).*obj,2);
