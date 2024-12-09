@@ -235,7 +235,7 @@ function Population = Final(Problem,IndexArr,ObjsArch,DecsArch,ArchGEN,W,Z,eta,P
     end
 
 
-    Population = [populationOne, populationTwo, populationThree];
+    Population = [populationOne, populationTwo];
     % Population = [populationOne, Problem.Evaluation(rRelateV2.decs), Problem.Evaluation(rRelateV3.decs)];
     Population(1).add = RFE;
     

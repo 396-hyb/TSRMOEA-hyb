@@ -210,10 +210,16 @@ function Population = Final(Problem,IndexArr,ObjsArch,DecsArch,ArchGEN,W,Z,eta,P
 
     %第二类向量关联解被引导
     if ~isempty(rRelateV2)
-        RFE = RFE + size(rRelateV2,2)*100*50;
-        populationTwo = DeGuideTwo(Problem, Population, rRelateV2, flagV2, W, Z, eta);
+        if length(find(flagV2 == 1)) == 1
+            % populationThree = Problem.Evaluation(rRelateV3.decs);
+            populationTwo = rRelateV2;
+        else
+            RFE = RFE + size(rRelateV2,2)*100*50;
+            populationTwo = DeGuideTwo(Problem, Population, rRelateV2, flagV2, W, Z, eta);
+        end
     end
     % error('用于rRelateV2,程序终止');
+
 
     %第三类向量关联解被引导
     flagV3 = ones(1,N) - flagN0R;
