@@ -31,6 +31,7 @@ classdef NSGAIIDTI < ALGORITHM
                 if Problem.FE >= Problem.maxFE
                     Population(1).add = Problem.FE * 50;
                     disp(num2str(Population(1).add));
+                    disp(Population.objs);
                 end
             end
         end

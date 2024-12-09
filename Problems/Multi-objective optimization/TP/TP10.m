@@ -1,5 +1,5 @@
 classdef TP10 < PROBLEM
-% <multi> <real> <large/none> <constrained> <robust>
+% <multi> <real> <large/none> <robust>
 % Test problem for robust multi-objective optimization
 % delta --- 0.05 --- Maximum disturbance degree
 % H     ---   50 --- Number of disturbances
@@ -48,7 +48,7 @@ classdef TP10 < PROBLEM
         %% Calculate the metric value
         function score = CalMetric(obj,metName,Population)
             switch metName
-                case {'Mean_IGD','Mean_HV','Worst_IGD','Worst_HV'}
+                case {'Mean_IGD','Mean_HV','Worst_IGD','Worst_HV','IGDRM2','IGDRW2','IGDRM1','IGDRW1','RobustFE','RobustRatio','HVRM1'}
                     score = feval(metName,Population,obj);
                 otherwise
                     score = feval(metName,Population,obj.optimum);

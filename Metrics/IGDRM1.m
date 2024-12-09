@@ -18,14 +18,19 @@ function score = IGDRM1(Population,Problem)
     Population    = Population.best;
     PopObj        = Population.objs;
     N             = length(Population);
-    [D, PopIndex] = min(pdist2(Problem.optimum,PopObj),[],2);
-    PopObj(PopObj == 0) = 1e-6;
-    for i = 1 : N
-        PopX         = Problem.Perturb(Population(i).decs); % PopX为50行2列矩阵
-        PopObjV(i,:) = mean(PopX.objs,1);    
-        E(i,:)       = abs(PopObjV(i,:) - PopObj(i,:))./(PopObj(i,:));
+    score = [];
+    if size(PopObj,2) ~= size(Problem.optimum,2)
+        score = [score,nan];
+    else
+        [D, PopIndex] = min(pdist2(Problem.optimum,PopObj),[],2);
+        PopObj(PopObj == 0) = 1e-6;
+        for i = 1 : N
+            PopX         = Problem.Perturb(Population(i).decs); % PopX为50行2列矩阵
+            PopObjV(i,:) = mean(PopX.objs,1);    
+            E(i,:)       = abs(PopObjV(i,:) - PopObj(i,:))./(PopObj(i,:));
+        end
+        R   = mean(E,2);  
+        
+        score =  mean(D.*R(PopIndex) + D);
     end
-    R   = mean(E,2);  
-
-    score =  mean(D.*R(PopIndex) + D);
 end

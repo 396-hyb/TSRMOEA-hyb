@@ -1,4 +1,4 @@
-for k = 6:9
+for k = 1:5
     % 加载 Excel 数据
     % k = 3;
     filename = ['E:\ExperimentResults\TSRMOEA\Lambda-TP',num2str(k),'.xlsx']; % Excel 文件名
@@ -34,6 +34,8 @@ for k = 6:9
     title(['TP-',num2str(k)]);
     xlabel('Number of evaluations');
     ylabel('IGDRM');
+
+    ylim([0 0.6]); %TP6
 
     % 设置纵坐标范围
     if k == 6
