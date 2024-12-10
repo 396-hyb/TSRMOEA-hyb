@@ -26,7 +26,8 @@ classdef AAtestEA11 < ALGORITHM
 % 第一类策略：仍然向前进化，最后判断下鲁棒性
 % 第二类策略：每个向量单独生成子代，然后更新的时候一起更新
 
-%计算阈值用评价目标值
+%用平均目标值计算阈值 TP1-5
+
     methods
         function main(Algorithm,Problem)
             
