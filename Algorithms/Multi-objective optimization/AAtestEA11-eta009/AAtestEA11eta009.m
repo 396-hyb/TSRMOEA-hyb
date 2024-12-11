@@ -1,6 +1,6 @@
-classdef AAtestEA11eta005 < ALGORITHM
+classdef AAtestEA11eta009 < ALGORITHM
 % <multi> <real/integer/label/binary/permutation> <constrained/none> <robust>
-% eta --- 0.05 --- Parameter
+% eta --- 0.09 --- Parameter
 % ArchGEN --- 30 --- Parameter
 % gap    ---    30 --- Parameter calculating the change rate of ideal points
 % lambda --- 1e-3 --- Parameter determining the evolving stages 
@@ -75,9 +75,7 @@ classdef AAtestEA11eta005 < ALGORITHM
             while Algorithm.NotTerminated(Population)
                 for i = 1 : Problem.N
                     P = B(i,randperm(size(B,2)));
-                    % Offspring = OperatorGAhalf(Problem, Population(P(1:2)), {1,20,0.5,10});
-                    Offspring = OperatorGAhalf(Problem, Population(P(1:2)), {1,10,1,10});
-
+                    Offspring = OperatorGAhalf(Problem, Population(P(1:2)), {1,20,0.5,20});
                     Z = min(Z,Offspring.obj);
                     normW   = sqrt(sum(W(P,:).^2,2));
                     normP   = sqrt(sum((Population(P).objs-repmat(Z,T,1)).^2,2));
