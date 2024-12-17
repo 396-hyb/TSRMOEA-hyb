@@ -1,4 +1,4 @@
-function [Population,FrontNo,CrowdDis,PopObjV,PopConV] = EnvironmentalSelection(Population,N,PopObjV,PopConV)
+function [Population,FrontNo,CrowdDis] = EnvironmentalSelection(Population,N)
 % The environmental selection of NSGA-II
 
 %------------------------------- Copyright --------------------------------
@@ -11,11 +11,11 @@ function [Population,FrontNo,CrowdDis,PopObjV,PopConV] = EnvironmentalSelection(
 %--------------------------------------------------------------------------
 
     %% Non-dominated sorting
-    [FrontNo,MaxFNo] = NDSort(PopObjV,PopConV,N);
+    [FrontNo,MaxFNo] = NDSort(Population.objs,N);
     Next = FrontNo < MaxFNo;
     
     %% Calculate the crowding distance of each solution
-    CrowdDis = CrowdingDistance(PopObjV,FrontNo);
+    CrowdDis = CrowdingDistance(Population.objs,FrontNo);
     
     %% Select the solutions in the last front based on their crowding distances
     Last     = find(FrontNo==MaxFNo);
@@ -26,6 +26,4 @@ function [Population,FrontNo,CrowdDis,PopObjV,PopConV] = EnvironmentalSelection(
     Population = Population(Next);
     FrontNo    = FrontNo(Next);
     CrowdDis   = CrowdDis(Next);
-    PopObjV    = PopObjV(Next,:);
-    PopConV    = PopConV(Next,:);
 end

@@ -12,6 +12,7 @@ function [Population,FrontNo,CrowdDis] = EnvironmentalSelection(Population,N)
 
     %% Non-dominated sorting
     [FrontNo,MaxFNo] = NDSort(Population.objs,Population.cons,N);
+    
     Next = FrontNo < MaxFNo;
     
     %% Calculate the crowding distance of each solution

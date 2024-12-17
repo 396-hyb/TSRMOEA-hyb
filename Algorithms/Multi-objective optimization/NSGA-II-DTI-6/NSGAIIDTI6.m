@@ -1,7 +1,6 @@
-classdef NSGAIIDTI3 < ALGORITHM
+classdef NSGAIIDTI6 < ALGORITHM
 % <multi> <real/integer/label/binary/permutation> <constrained/none> <robust>
-% eta --- 0.5 --- Parameter
-% Nondominated sorting genetic algorithm II
+% eta --- 0.1 --- Parameter
 
 %------------------------------- Reference --------------------------------
 % K. Deb, A. Pratap, S. Agarwal, and T. Meyarivan, A fast and elitist
@@ -20,32 +19,37 @@ classdef NSGAIIDTI3 < ALGORITHM
         function main(Algorithm,Problem)
 
             Result=[]; %初始化一个名为 Result 的空数组。
-            ResultName = strcat('Data/Result/Result-1.mat');
-            eta = Algorithm.ParameterSet(0.5);
+            ResultName = strcat('Data/Result/ZDT5-raodong.mat');
+            eta = Algorithm.ParameterSet(0.1);
 
-            %% Generate random population
-            Population = Problem.Initialization();
-           
-            [~,FrontNo,CrowdDis] = EnvironmentalSelection(Population,Problem.N);
-            
-            %% Optimization
-            first_FES = 10000;    
+            % 现在 ResultPop 变量包含了加载的数据，可以直接使用它
+            load('Data/Result/ZDT5.mat', 'ResultPop');
 
-            %% Optimization
-            while Algorithm.NotTerminated(Population)
-                MatingPool = TournamentSelection(2,Problem.N,FrontNo,-CrowdDis);
-                Offspring  = OperatorGA(Problem,Population(MatingPool),{1,0,0.5,20});
-                [Population,FrontNo,CrowdDis] = EnvironmentalSelection([Population,Offspring],Problem.N);
+            ArchGEN = Problem.maxFE / Problem.N;
 
+            i = 1;
+            while i <= ArchGEN
+                Population = [];
+                for j = 1 : Problem.N
+                    Population = [Population, Problem.Evaluation(ResultPop{i,j})];
+                end
                 flag = Classification(Problem,Population,eta);
                 Result = [Result;flag];
                 
-                if Problem.FE >= Problem.maxFE
-                    save(ResultName,'Result');
-                    MyFigure(ResultName);
+                i = i + 1;
+                if mod(i,10) == 1
+                    disp(num2str(i));
                 end
             end
 
+            Problem.FE = Problem.maxFE;
+            if Problem.FE >= Problem.maxFE
+                disp(num2str(flag));
+                save(ResultName,'Result');
+                MyFigure(ResultName);
+
+
+            end 
         end
     end
 end

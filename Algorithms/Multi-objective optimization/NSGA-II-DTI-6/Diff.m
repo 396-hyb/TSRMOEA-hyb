@@ -1,4 +1,4 @@
-function flag = RobustEta(Problem,arch)
+function Population3 = Diff(Population1,Population2)
 
 %------------------------------- Copyright --------------------------------
 % Copyright (c) 2023 BIMK Group. You are free to use the PlatEMO for
@@ -10,18 +10,27 @@ function flag = RobustEta(Problem,arch)
 %--------------------------------------------------------------------------
 
 % This function is written by He YiBin
-    Pobjs = arch.objs;
-    % Pobjs(Pobjs == 0) = 1e-6;
-    % conv  = zeros(1, 100);
-    len = length(arch);
-    Rcon = zeros(len,Problem.M);
-    for i = 1 : len
-        PopX         = Problem.Perturb(arch(i).dec); % PopX为50行2列矩阵
-        % PopObjV(i,:) = max(PopX.objs); 
-        PopObjV(i,:)   = mean(PopX.objs,1);    
-        % RCon(i,:)    = abs(PopObjV(i,:) - Pobjs(i,:))./Pobjs(i,:);
-        Rcon(i,:)    = abs(PopObjV(i,:) - Pobjs(i,:))./PopObjV(i,:);
+% 去掉重复的解
+    
+    [~,n1] = size(Population1);  %新种群
+    [~,n2] = size(Population2);  %父代种群
+    for x = 1 : n1
+        flag(x) = 0;
+        for y = 1 : n2
+            if(isequal(Population1(x).decs, Population2(y).decs))
+                flag(x) = 1;
+            end
+        end
     end
-    flag   = mean(Rcon,2);    
-    % flag   = RCon;    
+    % disp(['flag=1_len:', num2str(length( find(flag == 1) ) )]); 
+    Population3 = Population1(flag == 0);
+    % Population3
+    % [~,n3] = size(Population3);
+    % disp(['Population3_len:', num2str(n3)]);  
+
+
+
+
+   
+
 end

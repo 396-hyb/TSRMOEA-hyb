@@ -1,5 +1,4 @@
-function [PopObjV,PopConV] = MeanEffective(Problem,Population)
-% Calculate the mean objective values of each solution in the vicinity
+function [Arch] = ArchUpdate(Problem,Population,arch,gen)
 
 %------------------------------- Copyright --------------------------------
 % Copyright (c) 2024 BIMK Group. You are free to use the PlatEMO for
@@ -10,9 +9,12 @@ function [PopObjV,PopConV] = MeanEffective(Problem,Population)
 % Computational Intelligence Magazine, 2017, 12(4): 73-87".
 %--------------------------------------------------------------------------
 
-    for i = 1 : length(Population)
-        PopX         = Problem.Perturb(Population(i).dec);
-        PopObjV(i,:) = mean(PopX.objs,1);
-        PopConV(i,:) = mean(PopX.cons,1);
+    TemArch = archives(Population.decs, Population.objs, gen);
+    
+    if isempty(arch)
+        Arch = TemArch;
+    else
+        Arch = [arch;TemArch];
     end
 end
+
