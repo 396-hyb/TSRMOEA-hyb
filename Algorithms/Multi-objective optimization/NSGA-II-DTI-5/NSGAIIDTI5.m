@@ -18,8 +18,8 @@ classdef NSGAIIDTI5 < ALGORITHM
     methods
         function main(Algorithm,Problem)
 
-            Result=[]; %初始化一个名为 Result 的空数组。
-            ResultName = strcat('Data/Result/Result-1.mat');
+            % Result=[]; %初始化一个名为 Result 的空数组。
+            % ResultName = strcat('Data/Result/Result-1.mat');
 
             eta = Algorithm.ParameterSet(0.1);
             
@@ -41,19 +41,22 @@ classdef NSGAIIDTI5 < ALGORITHM
 
             ArchGEN = Problem.maxFE / Problem.N;
             ResultPop = cell(ArchGEN, Problem.N);  %决策变量存档, 初始化一个名为 ResultPop 的空数组。
-            % ResultNamePop = strcat('Data/Result/ZDT4.mat');
+            ResultNamePop = strcat('Data/Result/', class(Problem), '.mat');
 
             gen = 1;
             for i = 1 : Problem.N
                 ResultPop{gen, i} = Population(i).dec;
             end
             gen = gen + 1;
+            disp(class(Problem));
             
             %% Optimization
             while Algorithm.NotTerminated(Population)
                 for i = 1 : Problem.N
                     P = B(i,randperm(size(B,2)));
-                    Offspring = OperatorGAhalf(Problem,Population(P(1:2)),{1,5,1,20});
+                    
+                    Offspring = OperatorGAhalf(Problem,Population(P(1:2)),{1,20,0.5,20});
+                 
                     Z = min(Z,Offspring.obj);
                     normW   = sqrt(sum(W(P,:).^2,2));
                     normP   = sqrt(sum((Population(P).objs-repmat(Z,T,1)).^2,2));
@@ -70,17 +73,18 @@ classdef NSGAIIDTI5 < ALGORITHM
                 end
                 gen = gen + 1;
                 
-                flag = Classification(Problem,Population,eta);
+                % flag = Classification(Problem,Population,eta);
 
-                Result = [Result;flag];
+                % Result = [Result;flag];
             
                 
                 if Problem.FE >= Problem.maxFE
-                    disp(num2str(flag));
-                    save(ResultName,'Result');
-                    MyFigure(ResultName);
-
-                    % save(ResultNamePop,'ResultPop');
+                    % disp(num2str(flag));
+                    % save(ResultName,'Result');
+                    % MyFigure(ResultName);
+                    % disp(Problem.name);
+                    save(ResultNamePop,'ResultPop');
+                    disp("saved");
 
                 end
             end
