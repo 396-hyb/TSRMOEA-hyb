@@ -55,7 +55,7 @@ classdef NSGAIIDTI5 < ALGORITHM
                 for i = 1 : Problem.N
                     P = B(i,randperm(size(B,2)));
                     
-                    Offspring = OperatorGAhalf(Problem,Population(P(1:2)),{1,20,0.5,20});
+                    Offspring = OperatorGAhalf(Problem,Population(P(1:2)),{1,10,1,10});
                  
                     Z = min(Z,Offspring.obj);
                     normW   = sqrt(sum(W(P,:).^2,2));

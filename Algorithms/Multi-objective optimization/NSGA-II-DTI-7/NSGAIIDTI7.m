@@ -25,7 +25,7 @@ classdef NSGAIIDTI7 < ALGORITHM
             load(loadPath, 'ResultPop');
             ArchGEN = Problem.maxFE / Problem.N;
             deltaOri = Problem.delta;
-            delta1 = [1,2,3,4,5,6,7,8,9,10];    
+            delta1 = [1,2,4,6,8,10];    
             delta2 = [1,2,4,6,8,10,12,14,16,18,20];
             deltas = delta1; 
             switch type
@@ -65,31 +65,34 @@ classdef NSGAIIDTI7 < ALGORITHM
 end
 
 function MyFigureMultiple(filePaths, w, deltaOri, deltas, Problem)
+
     figure; % 创建一个图形窗口
     hold on; % 保持图像，以便在同一图形上绘制多个线条
     colors = lines(length(filePaths)); % 获取一组颜色以区分不同的线条
-    xlen = Problem.maxFE/Problem.N;
+    % 假设已经定义了filePaths和colors变量
+    legendEntries = cell(length(filePaths), 1); % 创建一个cell数组来保存图例条目
+    lineHandles = gobjects(length(filePaths), 1); % 创建一个图形对象数组来保存线条对象
     for i = 1:length(filePaths)
         filePath = filePaths{i};
         loadedData = load(filePath);
         dataVector = loadedData.Result;
-        % xlen = length(dataVector);
-
         if ~isvector(dataVector) || size(dataVector,2) ~= 1
             error('dataVector is not a column vector.');
         end
-        
         x = (1:length(dataVector))';
-        plot(x, dataVector, 'Color', colors(i,:), 'DisplayName', ['Delta ' num2str(deltaOri*deltas(i))]); % 使用指定颜色绘制，并添加图例标签
+        h = plot(x, dataVector, 'LineWidth', 1.3, 'Color', colors(i,:), 'DisplayName', ['Delta ' num2str(deltaOri*deltas(i))]);
+        legendEntries{i} = ['Delta ' num2str(deltaOri*deltas(i))]; % 保存图例描述
+        lineHandles(i) = h; % 保存对应的线条对象
     end
+    % 图例逆序
+    legend(flipud(lineHandles), flipud(legendEntries), 'Location', 'best');
+    %%
 
     title([class(Problem) ' - W' num2str(w)]);
-    xlabel('进化代数');
-    ylabel('归一化目标变化值');
-    grid on;
-    xlim([1 xlen]);
-    % ylim([0 1]);
-    ylim([-0.1 1]);
+    xlabel('Number of evaluations');
+    % ylabel('归一化目标变化值');
+    xlim([1 Problem.maxFE/Problem.N]);
+    ylim([0 1]);
 
     legend show; % 显示图例
     hold off; % 结束叠加绘图

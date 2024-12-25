@@ -58,12 +58,13 @@ function MyFigure1(filePath,w,delta,Problem)
     % 创建行向量作为x轴的数据点索引
     x = (1:length(dataVector))';
     % 绘制折线图
-    plot(x, dataVector);
+    % plot(x, dataVector);
+    plot(x, dataVector, 'LineWidth', 1.5);
     title([class(Problem) '-W' num2str(w) '-delta-' num2str(delta)]);
     xlabel('进化代数');
     ylabel('归一化目标变化值');
-    grid on; % 显示网格线
+    % grid on; % 显示网格线
     % 设置纵坐标范围为0到1
-    xlim([-1 length(dataVector)]);
+    xlim([0 length(dataVector)]);
     ylim([0 1]);
 end
