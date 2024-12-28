@@ -1,7 +1,7 @@
-classdef TP10 < PROBLEM
+classdef TP9delta000 < PROBLEM
 % <multi> <real> <large/none> <robust>
 % Test problem for robust multi-objective optimization
-% delta --- 0.05 --- Maximum disturbance degree
+% delta --- 0.06 --- Maximum disturbance degree
 % H     ---   50 --- Number of disturbances
 
 %------------------------------- Reference --------------------------------
@@ -24,29 +24,36 @@ classdef TP10 < PROBLEM
     methods
         %% Default settings of the problem
         function Setting(obj)
-            [obj.delta,obj.H] = obj.ParameterSet(0.05,50);
-            obj.M = 3;
-            obj.D = 5;
-            obj.lower    = [0,0,1];
-            obj.upper    = [10,10,3];
+            [obj.delta,obj.H] = obj.ParameterSet(0.01,50);
+            obj.M = 2;
+            if isempty(obj.D); obj.D = 5; end
+            obj.lower    = [0,0,-ones(1,obj.D-2)];
+            obj.upper    = [1,1, ones(1,obj.D-2)];
             obj.encoding = ones(1,obj.D);
         end
         %% Calculate objective values
         function PopObj = CalObj(~,PopDec)
-            PopObj(:,1) = 1640.2823 + PopDec(:,1).*2.3573285 + PopDec(:,2).*2.3220035 + PopDec(:,3).*4.5688768 + PopDec(:,4).*7.7213633 + PopDec(:,5).*4.4559504;
-            PopObj(:,2) = 6.5856 + PopDec(:,1).*1.15 - PopDec(:,2).*1.0427 + PopDec(:,3).*0.9738 + PopDec(:,4).*0.8364 - PopDec(:,1).*PopDec(:,4).*0.3695 + ...
-                PopDec(:,1).*PopDec(:,5).*0.0861 + PopDec(:,2).*PopDec(:,4).*0.3628 - (PopDec(:,1).^2).*0.1106 - (PopDec(:,3).^2).*0.3437 + (PopDec(:,4).^2).*0.1764;
-            PopObj(:,3) = -0.0551 + PopDec(:,1).*0.0181 + PopDec(:,2).*0.1024 + PopDec(:,3).*0.0421 -  PopDec(:,1).*PopDec(:,2).*0.0073 + PopDec(:,2).*PopDec(:,3).*0.024 - ...
-                PopDec(:,2).*PopDec(:,4).*0.0118 - PopDec(:,3).*PopDec(:,4).*0204 - PopDec(:,3).*PopDec(:,5).*0.008 - (PopDec(:,2).^2).*0.0241 + (PopDec(:,4).^2).*0.0109                     
+            PopObj(:,1) = PopDec(:,1);
+            h = 2 - PopObj(:,1) - 0.8*exp(-((PopObj(:,1)+PopDec(:,2)-0.35)/0.25).^2) - exp(-((PopObj(:,1)+PopDec(:,2)-0.85)/0.03).^2);
+            t = abs(PopDec(:,3:end) - 0.5);
+            g = 50*sum(t.^2,2);
+            % g = 50*sum(PopDec(:,3:end).^2,2);
+            S = 1 - sqrt(PopObj(:,1));
+            PopObj(:,2) = h.*(g+S);
         end
         %% Generate points on the Pareto front
-        function R = GetOptimum(obj,N)
-            R = [100,100];
+        function R = GetOptimum(~,N) 
+            R(:,1) = linspace(0,1,N)';
+            R(:,2) = (1-sqrt(R(:,1))).*(1-R(:,1)-0.8*exp(-4));
+        end
+        %% Generate the image of Pareto front
+        function R = GetPF(obj)
+            R = obj.GetOptimum(100);
         end
         %% Calculate the metric value
         function score = CalMetric(obj,metName,Population)
             switch metName
-                case {'Mean_IGD','Mean_HV','Worst_IGD','Worst_HV','IGDRM2','IGDRW2','IGDRM1','IGDRW1','RobustFE','RobustRatio','HVRM1'}
+                case {'Mean_IGD','Mean_HV','Worst_IGD','Worst_HV','IGDRM2','IGDRW2','IGDRM1','IGDRW1','RobustFE'}
                     score = feval(metName,Population,obj);
                 otherwise
                     score = feval(metName,Population,obj.optimum);

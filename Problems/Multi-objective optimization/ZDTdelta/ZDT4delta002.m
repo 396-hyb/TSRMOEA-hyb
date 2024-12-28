@@ -1,15 +1,16 @@
-classdef TP10 < PROBLEM
+classdef ZDT4delta002 < PROBLEM
 % <multi> <real> <large/none> <robust>
+% Benchmark MOP proposed by Zitzler, Deb, and Thiele
 % Test problem for robust multi-objective optimization
-% delta --- 0.05 --- Maximum disturbance degree
+% delta --- 0.02 --- Maximum disturbance degree
 % H     ---   50 --- Number of disturbances
 
 %------------------------------- Reference --------------------------------
-% A. Gaspar-Cunha, J. Ferreira, and G. Recio, Evolutionary robustness
-% analysis for multi-objective optimization: benchmark problems, Structural
-% and Multidisciplinary Optimization, 2014, 49: 771-793.
+% E. Zitzler, K. Deb, and L. Thiele, Comparison of multiobjective
+% evolutionary algorithms: Empirical results, Evolutionary computation,
+% 2000, 8(2): 173-195.
 %------------------------------- Copyright --------------------------------
-% Copyright (c) 2023 BIMK Group. You are free to use the PlatEMO for
+% Copyright (c) 2024 BIMK Group. You are free to use the PlatEMO for
 % research purposes. All publications which use this platform or any code
 % in the platform should acknowledge the use of "PlatEMO" and reference "Ye
 % Tian, Ran Cheng, Xingyi Zhang, and Yaochu Jin, PlatEMO: A MATLAB platform
@@ -24,31 +25,34 @@ classdef TP10 < PROBLEM
     methods
         %% Default settings of the problem
         function Setting(obj)
-            [obj.delta,obj.H] = obj.ParameterSet(0.05,50);
+            [obj.delta,obj.H] = obj.ParameterSet(0.03,50);
             obj.M = 2;
-            obj.D = 3;
-            obj.lower    = [0,0,1];
-            obj.upper    = [10,10,3];
+            if isempty(obj.D); obj.D = 10; end
+            obj.lower    = [0,zeros(1,obj.D-1)-5];
+            obj.upper    = [1,zeros(1,obj.D-1)+5];
             obj.encoding = ones(1,obj.D);
         end
         %% Calculate objective values
-        function PopObj = CalObj(~,PopDec)
-            PopObj(:,1) = PopDec(:,1).*sqrt(16+PopDec(:,3).^2) + PopDec(:,2).*sqrt(1+PopDec(:,3).^2);
-            PopObj(:,2) = 20*sqrt(16+PopDec(:,3).^2)./PopDec(:,1)./PopDec(:,3);
-        end
-        %% Calculate constraint violations
-        function PopCon = CalCon(obj,PopDec)
-            PopCon(:,1) = 20*sqrt(16+PopDec(:,3).^2) - 100*PopDec(:,1).*PopDec(:,3);
-            PopCon(:,2) = 80*sqrt(1+PopDec(:,3).^2) - 100*PopDec(:,2).*PopDec(:,3);
+        function PopObj = CalObj(obj,PopDec)
+            PopObj(:,1) = PopDec(:,1);
+            g = 1 + 10*(size(PopDec,2)-1) + sum(PopDec(:,2:end).^2-10*cos(4*pi*PopDec(:,2:end)),2);
+            h = 1 - (PopObj(:,1)./g).^0.5;
+            PopObj(:,2) = g.*h;
         end
         %% Generate points on the Pareto front
         function R = GetOptimum(obj,N)
-            R = [100,100];
+            R(:,1) = linspace(0,1,N)';
+            R(:,2) = 1 - R(:,1).^0.5;
+        end
+        %% Generate the image of Pareto front
+        function R = GetPF(obj)
+            R = obj.GetOptimum(100);
         end
         %% Calculate the metric value
         function score = CalMetric(obj,metName,Population)
             switch metName
-                case {'Mean_IGD','Mean_HV','Worst_IGD','Worst_HV','IGDRM2','IGDRW2','IGDRM1','IGDRW1','RobustFE','RobustRatio','HVRM1'}
+                % case {'Mean_IGD','Mean_HV','Worst_IGD','Worst_HV','IGDR'}
+                case {'Mean_IGD','Mean_HV','Worst_IGD','Worst_HV','IGDRM2','IGDRW2','IGDRM1','IGDRW1','RobustFE','RobustRatio'}
                     score = feval(metName,Population,obj);
                 otherwise
                     score = feval(metName,Population,obj.optimum);

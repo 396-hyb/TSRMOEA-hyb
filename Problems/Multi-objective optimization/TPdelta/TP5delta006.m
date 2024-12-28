@@ -1,7 +1,7 @@
 classdef TP5delta006 < PROBLEM
 % <multi> <real> <large/none> <robust>
 % Test problem for robust multi-objective optimization
-% delta --- 0.02--- Maximum disturbance degree
+% delta --- 0.06 --- Maximum disturbance degree
 % H     ---   50 --- Number of disturbances
 
 %------------------------------- Reference --------------------------------

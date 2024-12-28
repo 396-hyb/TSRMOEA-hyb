@@ -1,7 +1,7 @@
-classdef TP5delta000 < PROBLEM
+classdef TP6delta004 < PROBLEM
 % <multi> <real> <large/none> <robust>
 % Test problem for robust multi-objective optimization
-% delta --- 0 --- Maximum disturbance degree
+% delta --- 0.04 --- Maximum disturbance degree
 % H     ---   50 --- Number of disturbances
 
 %------------------------------- Reference --------------------------------
@@ -24,26 +24,26 @@ classdef TP5delta000 < PROBLEM
     methods
         %% Default settings of the problem
         function Setting(obj)
-            [obj.delta,obj.H] = obj.ParameterSet(0.03,50);
+            [obj.delta,obj.H] = obj.ParameterSet(0.01,50);
             obj.M = 2;
-            if isempty(obj.D); obj.D = 10; end
-            obj.lower    = zeros(1,obj.D);
-            obj.upper    = ones(1,obj.D);
+            if isempty(obj.D); obj.D = 5; end
+            obj.lower    = [0,-ones(1,obj.D-1)];
+            obj.upper    = [1, ones(1,obj.D-1)];
             obj.encoding = ones(1,obj.D);
         end
         %% Calculate objective values
-        function PopObj = CalObj(obj,PopDec)
+        function PopObj = CalObj(~,PopDec) 
             PopObj(:,1) = PopDec(:,1);
-            % g = 1 + 10*mean(PopDec(:,2:end)-0.2,2) + 0.2;
-            t = mean(PopDec(:,2:end) - 0.5, 2);
-            g = 1 + 10*abs(t);
-            h = sin(4*pi*PopDec(:,1))/15 - PopDec(:,1) + 1;
-            PopObj(:,2) = h.*g;
+            h = 1 - PopDec(:,1).^2;
+            t = abs((PopDec(:,2:end)) - 0.5);
+            g = sum(10-10*cos(4*pi*t) + t.^2,2);
+            S = 1./(0.2+PopDec(:,1)) + PopDec(:,1).^2;
+            PopObj(:,2) = h + g.*S;
         end
         %% Generate points on the Pareto front
-        function R = GetOptimum(~,N)
+        function R = GetOptimum(obj,N)
             R(:,1) = linspace(0,1,N)';
-            R(:,2) = sin(4*pi*R(:,1))/15 - R(:,1) + 1;
+            R(:,2) = 1 - R(:,1).^2 ;
         end
         %% Generate the image of Pareto front
         function R = GetPF(obj)
@@ -52,6 +52,7 @@ classdef TP5delta000 < PROBLEM
         %% Calculate the metric value
         function score = CalMetric(obj,metName,Population)
             switch metName
+                % case {'Mean_IGD','Mean_HV','Worst_IGD','Worst_HV','IGDR'}
                 case {'Mean_IGD','Mean_HV','Worst_IGD','Worst_HV','IGDRM2','IGDRW2','IGDRM1','IGDRW1','RobustFE'}
 
                     score = feval(metName,Population,obj);

@@ -1,15 +1,16 @@
-classdef TP5delta000 < PROBLEM
+classdef ZDT6delta002 < PROBLEM
 % <multi> <real> <large/none> <robust>
+% Benchmark MOP proposed by Zitzler, Deb, and Thiele
 % Test problem for robust multi-objective optimization
-% delta --- 0 --- Maximum disturbance degree
+% delta --- 0.02 --- Maximum disturbance degree
 % H     ---   50 --- Number of disturbances
 
 %------------------------------- Reference --------------------------------
-% A. Gaspar-Cunha, J. Ferreira, and G. Recio, Evolutionary robustness
-% analysis for multi-objective optimization: benchmark problems, Structural
-% and Multidisciplinary Optimization, 2014, 49: 771-793.
+% E. Zitzler, K. Deb, and L. Thiele, Comparison of multiobjective
+% evolutionary algorithms: Empirical results, Evolutionary computation,
+% 2000, 8(2): 173-195.
 %------------------------------- Copyright --------------------------------
-% Copyright (c) 2023 BIMK Group. You are free to use the PlatEMO for
+% Copyright (c) 2024 BIMK Group. You are free to use the PlatEMO for
 % research purposes. All publications which use this platform or any code
 % in the platform should acknowledge the use of "PlatEMO" and reference "Ye
 % Tian, Ran Cheng, Xingyi Zhang, and Yaochu Jin, PlatEMO: A MATLAB platform
@@ -33,17 +34,16 @@ classdef TP5delta000 < PROBLEM
         end
         %% Calculate objective values
         function PopObj = CalObj(obj,PopDec)
-            PopObj(:,1) = PopDec(:,1);
-            % g = 1 + 10*mean(PopDec(:,2:end)-0.2,2) + 0.2;
-            t = mean(PopDec(:,2:end) - 0.5, 2);
-            g = 1 + 10*abs(t);
-            h = sin(4*pi*PopDec(:,1))/15 - PopDec(:,1) + 1;
-            PopObj(:,2) = h.*g;
+            PopObj(:,1) = 1 - exp(-4*PopDec(:,1)).*sin(6*pi*PopDec(:,1)).^6;
+            g = 1 + 9*mean(PopDec(:,2:end),2).^0.25;
+            h = 1 - (PopObj(:,1)./g).^2;
+            PopObj(:,2) = g.*h;
         end
         %% Generate points on the Pareto front
-        function R = GetOptimum(~,N)
-            R(:,1) = linspace(0,1,N)';
-            R(:,2) = sin(4*pi*R(:,1))/15 - R(:,1) + 1;
+        function R = GetOptimum(obj,N)
+            minf1  = 0.280775;
+            R(:,1) = linspace(minf1,1,N)';
+            R(:,2) = 1 - R(:,1).^2;
         end
         %% Generate the image of Pareto front
         function R = GetPF(obj)
@@ -52,8 +52,8 @@ classdef TP5delta000 < PROBLEM
         %% Calculate the metric value
         function score = CalMetric(obj,metName,Population)
             switch metName
-                case {'Mean_IGD','Mean_HV','Worst_IGD','Worst_HV','IGDRM2','IGDRW2','IGDRM1','IGDRW1','RobustFE'}
-
+                % case {'Mean_IGD','Mean_HV','Worst_IGD','Worst_HV','IGDR'}
+                case {'Mean_IGD','Mean_HV','Worst_IGD','Worst_HV','IGDRM2','IGDRW2','IGDRM1','IGDRW1','RobustFE','RobustRatio'}
                     score = feval(metName,Population,obj);
                 otherwise
                     score = feval(metName,Population,obj.optimum);
