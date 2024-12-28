@@ -52,7 +52,7 @@ classdef LRMOEA < ALGORITHM
                 Arch    = ArchUpdate(Problem,Arch,TemArch,thea,eta);
                 if Problem.FE >= Problem.maxFE
                     Population = Final(Problem,Arch,Problem.N,W,score);
-                    Population(1).add = RFE;
+                    Population(1).add = RFE + Problem.FE;
                     disp(num2str(RFE));
                 end
             end

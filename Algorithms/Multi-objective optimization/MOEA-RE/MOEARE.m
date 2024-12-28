@@ -46,7 +46,7 @@ classdef MOEARE < ALGORITHM
                 % Final robust solution selection
                 if Problem.FE >= Problem.maxFE
                     Population = FinalSelection(Archive,W,ArcW,ArcSP);
-                    Population(1).add = RFE;
+                    Population(1).add = RFE + Problem.FE;
                     disp(num2str(RFE));
                 end
             end

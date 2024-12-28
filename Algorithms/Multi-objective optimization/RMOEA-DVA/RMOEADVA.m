@@ -47,7 +47,7 @@ classdef RMOEADVA< ALGORITHM
                     [Population,FrontNo,CrowdDis] = EnvironmentalSelection(Problem,[Population,Offspring],Problem.N,true);
                 end
                 if Problem.FE >= Problem.maxFE
-                    Population(1).add = RFE;
+                    Population(1).add = RFE + Problem.FE;
                     disp(num2str(RFE));
                 end
             end

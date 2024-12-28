@@ -29,7 +29,7 @@ classdef NSGAIIDTI < ALGORITHM
                 [Population,FrontNo,CrowdDis,PopObjV,PopConV] = EnvironmentalSelection([Population,Offspring],Problem.N,[PopObjV;OffObjV],[PopConV;OffConV]);
                 % disp(num2str(Problem.FE));
                 if Problem.FE >= Problem.maxFE
-                    Population(1).add = Problem.FE * 50;
+                    Population(1).add = Problem.FE * 51;
                     % disp(num2str(Population(1).add));
                     % disp(Population.objs);
                 end
