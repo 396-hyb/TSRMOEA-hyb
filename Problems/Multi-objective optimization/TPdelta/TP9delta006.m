@@ -1,4 +1,4 @@
-classdef TP9delta000 < PROBLEM
+classdef TP9delta006 < PROBLEM
 % <multi> <real> <large/none> <robust>
 % Test problem for robust multi-objective optimization
 % delta --- 0.06 --- Maximum disturbance degree

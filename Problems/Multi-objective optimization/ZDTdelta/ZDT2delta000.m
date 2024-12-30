@@ -2,7 +2,7 @@ classdef ZDT2delta000 < PROBLEM
 % <multi> <real> <large/none> <robust>
 % Benchmark MOP proposed by Zitzler, Deb, and Thiele
 % Test problem for robust multi-objective optimization
-% delta --- 0 --- Maximum disturbance degree
+% delta --- 0.000001 --- Maximum disturbance degree
 % H     ---   50 --- Number of disturbances
 
 %------------------------------- Reference --------------------------------

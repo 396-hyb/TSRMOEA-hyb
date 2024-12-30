@@ -1,6 +1,5 @@
 classdef RMOEA < ALGORITHM
 % <multi> <real/integer> <robust>
-% Robust multi-objective evolutionary algorithm with decision variable assortment
 
 %------------------------------- Reference --------------------------------
 % J. Liu, Y. Liu, Y. Jin, and F. Li, A decision variable assortment-based
@@ -29,11 +28,16 @@ classdef RMOEA < ALGORITHM
                 p3 = Problem.N;
                 p4 = Problem.delta;
                 p5 = Problem.maxFE;
-                p6 = class(Problem);
-                f = RMOEA_main(p1,p2,p3,p4,p5,p6);
-                % f = 1;
-                % disp(num2str(f));
-                disp(f);
+                str = class(Problem);
+                p6 = str(1:3);
+                % disp(p6);
+                [res,RFE] = rmoeamain(p1,p2,p3,p4,p5,p6);
+                % disp(res);
+                % Dec = unifrnd(repmat(Problem.lower,Problem.N,1),repmat(Problem.upper,Problem.N,1));
+                Dec = res(:,1:p2);
+                Population = Problem.Evaluation(Dec);
+                disp(num2str(RFE));
+                Population(1).add = RFE;
                 Problem.FE = Problem.maxFE;
             end
         end

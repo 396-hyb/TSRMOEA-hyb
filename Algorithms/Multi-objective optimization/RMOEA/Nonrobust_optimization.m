@@ -39,7 +39,7 @@ function [ds,fn]=Nonrobust_optimization(M,n,N,mu,mum,r_c,r_p,num,pool,tour,func)
         cc=[fn(:,1:M+n+1);cc1]; %Combine both old population and new population
         intermediate_chromosome=non_domination_sort_mod(cc, M, n);%Do non_dominated sorting
         fn=replace_chromosome(intermediate_chromosome, M, n, N);  %Select solutions to form new population
-        figure (1), plot(fn(:,n+1),fn(:,n+2),'o'); %Show the image
+        % figure (1), plot(fn(:,n+1),fn(:,n+2),'o'); %Show the image
         ii
     end    
     

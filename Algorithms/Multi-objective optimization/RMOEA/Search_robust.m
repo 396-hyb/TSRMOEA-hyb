@@ -1,4 +1,4 @@
-function [w_re,wc]=Search_robust(w,n,lf,g0,phi,ds,m_limit,w_limit,nei,TN,theta,func)
+function [w_re,wc,RFE]=Search_robust(w,n,lf,g0,phi,ds,m_limit,w_limit,nei,TN,theta,func)
 %w_re: robust region of each vector
 %wc: store each hyperbox PBI on each neighbor vector
  
@@ -7,6 +7,8 @@ function [w_re,wc]=Search_robust(w,n,lf,g0,phi,ds,m_limit,w_limit,nei,TN,theta,f
    c=0;
    wc=cell(10000,2);
    %For each vector
+   RFE = 0;
+
    for i=1:st1        
        l1=lf{i,1};%l1:all solutions associated to vector i's archive
        [T,TT1]=size(l1);
@@ -75,6 +77,7 @@ function [w_re,wc]=Search_robust(w,n,lf,g0,phi,ds,m_limit,w_limit,nei,TN,theta,f
             for j=1:12 %detect the robustness of the hyperbox of solution jj1
                  a=w_e(j,1:M+n);
                  w5=robust_detection1(w,a,n,phi,nei(i,:),TN,theta,func);
+                 RFE = RFE + TN;
                  [s3,s4]=size(w5);
                  [tt1,tt2]=sort(w5(:,1));%directly assign robust region on vector
                  j1=1;
