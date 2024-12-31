@@ -29,8 +29,13 @@ classdef RMOEA < ALGORITHM
                 p4 = Problem.delta;
                 p5 = Problem.maxFE;
                 str = class(Problem);
-                p6 = str(1:3);
-                % disp(p6);
+                strLen = length(str);
+                if strLen < 12
+                    p6 = str(1:3);
+                else
+                    p6 = str(2:4);
+                end
+                disp(p6);
                 [res,RFE] = rmoeamain(p1,p2,p3,p4,p5,p6);
                 % disp(res);
                 % Dec = unifrnd(repmat(Problem.lower,Problem.N,1),repmat(Problem.upper,Problem.N,1));

@@ -19,6 +19,10 @@ function Population = DeGuideThree(Problem, rRelate, flag, W, Z, eta)
     wr = find(flag == 1);
     WG = W(wr,:);
     T = ceil(min(10,len));
+    
+    disp("**T:**")
+    disp(num2str(T));
+    
     B = pdist2(WG,WG);
     [~,B] = sort(B,2);
     B = B(:,1:T);

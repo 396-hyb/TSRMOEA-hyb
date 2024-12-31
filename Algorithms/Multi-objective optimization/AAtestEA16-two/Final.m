@@ -218,7 +218,7 @@ function Population = Final(Problem,IndexArr,ObjsArch,DecsArch,ArchGEN,W,Z,eta,P
             % RFE = RFE + size(rRelateV2,2)*100*52;
             % populationTwo = DeGuideTwo(Problem, Population, rRelateV2, flagV2, W, Z, eta);
             RFE = RFE + size(rRelateV2,2)*100*51;
-            populationTwo = DeGuideThree(Problem, rRelateV2, rRelateV2, W, Z, eta);
+            populationTwo = DeGuideThree(Problem, rRelateV2, flagV2, W, Z, eta);
         end
     end
     % error('用于rRelateV2,程序终止');

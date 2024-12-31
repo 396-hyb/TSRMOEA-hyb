@@ -9,10 +9,11 @@ if rand(1)<r_c
         % Generate a random number
         if j<2
             l_limit=0.025;u_limit=0.975;
-      %  elseif j<3
-       %     l_limit=-0.115;u_limit=0.965;
-        else
-            l_limit=-0.975;u_limit=0.975;
+            %  elseif j<3
+            %     l_limit=-0.115;u_limit=0.965;
+         else
+            l_limit=0.025;u_limit=0.975;
+            % l_limit=-0.975;u_limit=0.975;
         end
         u=rand(1);
         if u<= 0.5
@@ -48,10 +49,11 @@ if rand(1)<r_p
    for j= 1:V
         if j<2
            l_limit=0.025;u_limit=0.975;
-      %  elseif j<3
-       %    l_limit=-0.115;u_limit=0.965;
-        else
-           l_limit=-0.975;u_limit=0.975;
+           %  elseif j<3
+           %    l_limit=-0.115;u_limit=0.965;
+         else
+            l_limit=0.025;u_limit=0.975;
+         %   l_limit=-0.975;u_limit=0.975;
         end
        r = rand(1);
        if r < 0.5

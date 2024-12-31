@@ -1,7 +1,7 @@
-for k = 1:9
+for k = 6:6
     % 加载 Excel 数据
     % k = 3;
-    filename = ['E:\ExperimentResults\TSRMOEA\ContrastExperiment\TP',num2str(k),'-IGDRM.xlsx']; % Excel 文件名
+    filename = ['E:\ExperimentResults\TSRMOEA\ContrastExperiment\ZDT',num2str(k),'-IGDRM.xlsx']; % Excel 文件名
     data = readmatrix(filename);  % 读取数据
 
     % 提取 x 坐标和 y 值
