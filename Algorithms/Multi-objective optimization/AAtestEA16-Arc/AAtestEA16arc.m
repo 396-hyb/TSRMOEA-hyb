@@ -78,7 +78,7 @@ classdef AAtestEA16arc < ALGORITHM
             while Algorithm.NotTerminated(Population)
                 for i = 1 : Problem.N
                     P = B(i,randperm(size(B,2)));
-                    Offspring = OperatorGAhalf(Problem, Population(P(1:2)), {1,0,0.5,20});
+                    Offspring = OperatorGAhalf(Problem, Population(P(1:2)), {1,0,0.5,10});
                     Z = min(Z,Offspring.obj);
                     normW   = sqrt(sum(W(P,:).^2,2));
                     normP   = sqrt(sum((Population(P).objs-repmat(Z,T,1)).^2,2));
@@ -140,10 +140,12 @@ classdef AAtestEA16arc < ALGORITHM
                                 DecsArch{mod(arPopNum+1, ArchGEN)+1, h} = popNew.dec;
                                 IndexArr(h) = arPopNum + 1;
                             else
-                                ObjsArch{1 : ArchGEN-1} = ObjsArch{2 : ArchGEN};
-                                DecsArch{1 : ArchGEN-1} = DecsArch{2 : ArchGEN};
-                                ObjsArch{mod(arPopNum+1, ArchGEN)+1, h} = obj;
-                                DecsArch{mod(arPopNum+1, ArchGEN)+1, h} = popNew.dec;
+                                for i3 = 2 : ArchGEN
+                                    ObjsArch{i3-1,h} = ObjsArch{i3,h};
+                                    DecsArch{i3-1,h} = DecsArch{i3,h};
+                                end
+                                ObjsArch{ArchGEN, h} = obj;
+                                DecsArch{ArchGEN, h} = popNew.dec;
                                 IndexArr(h) = arPopNum + 1;
                             end
                         end

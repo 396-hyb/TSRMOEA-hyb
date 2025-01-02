@@ -163,27 +163,28 @@ function Population = Final(Problem,IndexArr,ObjsArch,DecsArch,ArchGEN,W,Z,eta,P
         PopNR   = Population(find(Reta > eta)); %非鲁棒解
         PopNRsize = size(PopNR,2); 
         PopNRkeep = ones(1,PopNRsize); %PopNR没有选择的解
-
-        for i = 1 : Problem.N
-            if length(find(PopNRkeep == 1)) == 0 %PopNR的解已经选完
-                break;    
-            end
-            if flagV3(i) == 1
-                t = [];
-                for j = 1 : PopNRsize;
-                    if PopNRkeep(j) == 1
-                        obj = PopNR(j).obj;
-                        s = sum(W(i,:).*obj,2);
-                        m = sqrt(sum(W(i,:).*W(i,:),2)*sum(obj.*obj,2));
-                        t(1,j) = acos(s/m);
-                    end
-                end
-                [~,PopNRselect]     = min(t(1,:));
-                PopNRkeep(PopNRselect) = 0;
-                rRelateV3 = [rRelateV3, PopNR(PopNRselect)];
-                flagV3(i) = 0;
-            end
-        end
+        rRelateV3 = [rRelateV3, Population(find(flagV3 == 1))];
+        
+        % for i = 1 : Problem.N
+        %     if length(find(PopNRkeep == 1)) == 0 %PopNR的解已经选完
+        %         break;    
+        %     end
+        %     if flagV3(i) == 1
+        %         t = [];
+        %         for j = 1 : PopNRsize;
+        %             if PopNRkeep(j) == 1
+        %                 obj = PopNR(j).obj;
+        %                 s = sum(W(i,:).*obj,2);
+        %                 m = sqrt(sum(W(i,:).*W(i,:),2)*sum(obj.*obj,2));
+        %                 t(1,j) = acos(s/m);
+        %             end
+        %         end
+        %         [~,PopNRselect]     = min(t(1,:));
+        %         PopNRkeep(PopNRselect) = 0;
+        %         rRelateV3 = [rRelateV3, PopNR(PopNRselect)];
+        %         flagV3(i) = 0;
+        %     end
+        % end
         % disp("缺少***");
     end
 

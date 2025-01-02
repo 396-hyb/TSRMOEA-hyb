@@ -197,18 +197,7 @@ function Population = Final(Problem,IndexArr,ObjsArch,DecsArch,ArchGEN,W,Z,eta,P
     % error("停止");
 
     if ~isempty(rRelateV1)
-        if length(find(flagV1 == 1)) == 1
-            % populationThree = Problem.Evaluation(rRelateV3.decs);
-            populationOne = Problem.Evaluation(rRelateV1.decs);
-        else
-            % RFE = RFE + size(rRelateV3,2)*100 + size(rRelateV3,2)*50;
-            % populationThree = DeGuideThree(Problem, rRelateV3, flagV3, W, Z, eta);
-            % populationOne = DeGuideOne(Problem, rRelateV1, flagV1, W, Z, eta);
-            % populationThree = DeGuideThree(Problem,Arch{gen,:}, flagV3, W, Z, eta);
-            RFE = RFE + size(rRelateV1,2)*100*51;
-            populationOne = DeGuideThree(Problem, rRelateV1, flagV1, W, Z, eta);
-        end
-        % populationOne = Problem.Evaluation(rRelateV1.decs);
+        populationOne = Problem.Evaluation(rRelateV1.decs);
     end
 
     %第二类向量关联解被引导
