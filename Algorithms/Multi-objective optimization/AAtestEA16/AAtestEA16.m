@@ -109,14 +109,7 @@ classdef AAtestEA16 < ALGORITHM
                     for i = 1 : N
                         popNew = Population(i);
                         obj = popNew.obj;
-                        % 找到与这个解角度最近的权重向量
-                        % t = [];
-                        % for y = 1 : N
-                        %     s = sum(W(y,:).*obj,2);
-                        %     m = sqrt(sum(W(y,:).*W(y,:),2)*sum(obj.*obj,2));
-                        %     t(1,y) = acos(s/m);
-                        % end
-                        % [~,h]     = min(t(1,:));
+               
                         h = i;
                         arPopNum  = IndexArr(h); % 权重向量上最后关联解的索引
                         ArchVObjs = cell2mat(ObjsArch(:,h));  %h权重向量上的所有存档解的目标值

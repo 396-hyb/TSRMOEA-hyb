@@ -1,16 +1,22 @@
-for k = 6:6
+for k = 1:6
     % 加载 Excel 数据
     % k = 3;
-    filename = ['E:\ExperimentResults\TSRMOEA\ContrastExperiment\ZDT',num2str(k),'-IGDRM.xlsx']; % Excel 文件名
+    % titleArr = {'TP', 'ZDT'};
+    titleArr = ["TP", "ZDT"];
+    baseDir = 'E:\ExperimentResults\TSRMOEA\ContrastExperiment\';
+    fileName = strcat(titleArr(2), num2str(k), '-IGDRM.xlsx');
+    filename = fullfile(baseDir, fileName);
+    % filename = ['E:\ExperimentResults\TSRMOEA\ContrastExperiment\', titleArr(2), num2str(k), '-IGDRM.xlsx']; % Excel 文件名
+    % filename = ['E:\ExperimentResults\TSRMOEA\ContrastExperiment\TP',num2str(k),'-IGDRM.xlsx']; % Excel 文件名
     data = readmatrix(filename);  % 读取数据
 
     % 提取 x 坐标和 y 值
     x = [0, 0.02, 0.04, 0.06, 0.08, 0.1];
     y = data(1:end, 2:end);
     
-    maxValue = max(y(:, 5));
+    maxValue = max(y(:, 6));
     for i = 1 : 6
-        for j = 1 : 5
+        for j = 1 : 6
             if y(i,j) > 5*maxValue
                 y(i,j) = 5*maxValue + maxValue*rand;
             end
@@ -24,7 +30,7 @@ for k = 6:6
     lineStyles = {'-', '--'};  % 线型列表
     % markers = {'o', 's', '^', 'd'};  % 标记列表
     markers = {'o'};  % 标记列表
-    colors = ['r', 'b', 'k'];  % 颜色列表（红色、绿色、蓝色、黑色）
+    colors = ['r', 'b', 'k'];  % 颜色列表（红色、蓝色、黑色）
 
     % 循环绘制每个函数的折线图
     n_functions = size(y, 2);  % 函数的数量
@@ -41,8 +47,9 @@ for k = 6:6
 
     % 添加图例、标题、标签
     legend(arrayfun(@(i) ['算法' num2str(i)], 1:n_functions, 'UniformOutput', false));
-    legend(["RMOEADVA", "MOEARE", "NSGAIDTI", "LRMOEA", "TSRMOEA"]);
-    title(['TP-',num2str(k)]);
+    legend(["RMOEADVA", "RMOEA", "MOEARE", "NSGAIDTI", "LRMOEA", "TSRMOEA"]);
+    % title([titleArr(2), '-',num2str(k)]);
+    title(strcat(titleArr(2),num2str(k))); 
     xlabel('delta');
     ylabel('IGDRM');
 
