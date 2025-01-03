@@ -78,7 +78,7 @@ classdef AAtestEA16 < ALGORITHM
             while Algorithm.NotTerminated(Population)
                 for i = 1 : Problem.N
                     P = B(i,randperm(size(B,2)));
-                    Offspring = OperatorGAhalf(Problem, Population(P(1:2)), {1,0,0.5,10});
+                    Offspring = OperatorGAhalf(Problem, Population(P(1:2)));
                     Z = min(Z,Offspring.obj);
                     normW   = sqrt(sum(W(P,:).^2,2));
                     normP   = sqrt(sum((Population(P).objs-repmat(Z,T,1)).^2,2));
