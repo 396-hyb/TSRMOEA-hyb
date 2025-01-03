@@ -1,4 +1,4 @@
-classdef TP11 < PROBLEM
+classdef TP11delta010 < PROBLEM
 % <multi> <real> <large/none> <robust>
 % Test problem for robust multi-objective optimization
 % delta --- 0.1 --- Maximum disturbance degree

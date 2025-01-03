@@ -30,11 +30,7 @@ classdef RMOEA < ALGORITHM
                 p5 = Problem.maxFE;
                 str = class(Problem);
                 strLen = length(str);
-                if strLen < 12
-                    p6 = str(1:3);
-                else
-                    p6 = str(2:4);
-                end
+                p6 = str(1:4);
                 disp(p6);
                 [res,RFE] = rmoeamain(p1,p2,p3,p4,p5,p6);
                 % disp(res);
